@@ -1,0 +1,64 @@
+extends layout.pug
+
+block content
+    main(role='main')
+    .jumbotron
+      .container
+        h1.display-3 WordPress Sync 1.2
+        p Playground for Cousin Corporation product sync.
+        p
+          a.btn.btn-primary.btn-lg(href='#', onclick="startSync();", role='button') Test »
+    .container
+      // Example row of columns
+      .row
+        .col-md-4
+          h2 DIY Beta V 1.1
+          ul 
+            li Create a JSON file by querying CCA_Item_Descriptions table for the product data to import. 
+            li Export that data into a valid CSV.
+            li FTP that CSV file to a location DIY server.
+          
+            a.btn.btn-secondary(href='#', role='button') RUN »
+          
+        .col-md-4
+          h2 LJ Event Sync V 1.0
+          ul 
+            li Create categories for events 
+            li Put products in those events. 
+            li FTP that CSV file to a location LJ server.
+          
+            button.btn.btn-primary(type='button', onclick='testing();') RUN »
+        .col-md-4
+          h2 Cosmo Sync V 0.0
+          ul 
+            li Coming Soon 
+            li Will sync prods, images, and categories
+            li FTP that CSV file to a location Cosmo server.
+          
+            button.btn.btn-primary(type='button', onclick='testing();') RUN »
+      hr
+      .row
+        .col-md-4
+          h2 Beta V 1.0
+          ul 
+            li Create a JSON file by querying CCA_Item_Descriptions table for the product data to import. 
+            li Export that data into a valid CSV.
+            li FTP that CSV file to a location DIY server.
+          
+            a.btn.btn-secondary(href='#', role='button') View details »
+          
+        .col-md-4
+          form
+            .form-group
+              label(for='exampleFormControlTextarea1') JSON Response
+              textarea#response_area.form-control(rows='5')
+        .col-md-4
+          form
+            .form-group
+              label(for='exampleFormControlInput1') API URL
+              input#api-url.form-control(type='text', placeholder='name@example.com')
+              div(style='padding-top: 5px')
+                button.btn.btn-primary(type='button', onclick='testing();') Primary
+      hr
+      
+    

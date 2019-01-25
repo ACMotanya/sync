@@ -1,0 +1,71 @@
+Laura Janelle cca_item_descriptions Sync Query SWDB
+
+SELECT 
+       dbo.cca_item_descriptions.vitemnumber    AS vItemNumber, 
+       dbo.cca_item_descriptions.vlocation      AS vLocation, 
+       dbo.cca_item_descriptions.vdescription   AS vDescription, 
+       dbo.cca_item_descriptions.vshortdesc     AS vShortDesc, 
+       dbo.cca_item_descriptions.vlook          AS vLook, 
+       dbo.cca_item_descriptions.vspecificcolor AS vSpecificColor, 
+       dbo.cca_item_descriptions.vgencolor      AS vGenColor, 
+       dbo.cca_item_descriptions.vgenmaterial   AS vGenMaterial, 
+       dbo.cca_item_descriptions.vgenitemtype   AS vGenItemType, 
+       dbo.cca_item_descriptions.vshape         AS vShape, 
+       dbo.cca_item_descriptions.vsizetype      AS vSizetype, 
+       dbo.cca_item_descriptions.vmetalcolor    AS vMetalColor, 
+       dbo.cca_item_descriptions.vmetaltype     AS vMetalType, 
+       dbo.cca_item_descriptions.vdimensions    AS vDimensions, 
+       dbo.cca_item_descriptions.vpccounts      AS vPcCounts,
+       dbo.cca_item_descriptions.vkeywords      AS vKeywords, 
+       dbo.cca_item_descriptions.vonsale        AS vOnSale, 
+       dbo.cca_item_descriptions.vfeatureditem  AS vFeaturedItem, 
+       dbo.cca_item_descriptions.vsorting       AS vSorting, 
+       dbo.cca_item_descriptions.vaggregation   AS vAggregation,
+       dbo.cca_item_descriptions.vEvents        AS vEvents, 
+       dbo.cca_item_descriptions.vDetailDesc    AS vDetailDesc, 
+       dbo.cca_item_descriptions.vFeatureDesc   AS vFeatureDesc, 
+       dbo.cca_item_descriptions.vID            AS vID, 
+       dbo.cca_item_descriptions.vLastUpdated   AS vLastUpdated, 
+       dbo.cca_item_descriptions.vLastUpdated   AS vLastUpdated, 
+       dbo.cca_item_descriptions.vMaterialDesc  AS vMaterialDesc, 
+       dbo.cca_item_descriptions.vShowOnSite    AS vAShowOnSite,
+FROM   
+	dbo.cca_item_descriptions 
+WHERE  
+ 	dbo.cca_item_descriptions.vshowonsite = 'Y' AND dbo.cca_item_descriptions.vlocation = '800'
+
+
+
+Laura Janelle cca_item_descriptions Sync Query CousinDB MySQL
+
+INSERT INTO
+`cousindb`.`swccsstok` 
+SET
+`cousindb`.swccsstok`.vitemnumber = '" + sortdata[k].vItemNumber + "',
+`cousindb`.swccsstok`.vlocation = '" + sortdata[k].vLocation + "',
+`cousindb`.swccsstok`.vdescription = '" + sortdata[k].vDescription + "',
+`cousindb`.swccsstok`.vshortdesc = '" + sortdata[k].vShortDesc + "',
+`cousindb`.swccsstok`.vlook = '" + sortdata[k].vLook + "',
+`cousindb`.swccsstok`.vspecificcolor = '" + sortdata[k].vSpecificColor + "',
+`cousindb`.swccsstok`.vgencolor = '" + sortdata[k].vGenColor + "',
+`cousindb`.swccsstok`.vgenmaterial = '" + sortdata[k].vGenMaterial + "',
+`cousindb`.swccsstok`.vgenitemtype = '" + sortdata[k].vGenItemType + "',
+`cousindb`.swccsstok`.vshape = '" + sortdata[k].vShape + "',
+`cousindb`.swccsstok`.vsizetype = '" + sortdata[k].vSizetype + "', 
+`cousindb`.swccsstok`.vmetalcolor = '" + sortdata[k].vMetalColor + "', 
+`cousindb`.swccsstok`.vmetaltype = '" + sortdata[k].vMetalType + "', 
+`cousindb`.swccsstok`.vdimensions = '" + sortdata[k].vDimensions + "', 
+`cousindb`.swccsstok`.vpccounts = '" + sortdata[k].vPcCounts + "',
+`cousindb`.swccsstok`.vkeywords = '" + sortdata[k].vKeywords + "', 
+`cousindb`.swccsstok`.vonsale = '" + sortdata[k].vOnSale + "', 
+`cousindb`.swccsstok`.vfeatureditem = '" + sortdata[k].vFeaturedItem + "',
+`cousindb`.swccsstok`.vsorting = '" + sortdata[k].vSorting + "',
+`cousindb`.swccsstok`.vaggregation = '" + sortdata[k].vAggregation + "',
+`cousindb`.swccsstok`.vEvents = '" + sortdata[k].vEvents + "',
+`cousindb`.swccsstok`.vDetailDesc = '" + sortdata[k].vDetailDesc + "',
+`cousindb`.swccsstok`.vFeatureDesc = '" + sortdata[k].vFeatureDesc + "',
+`cousindb`.swccsstok`.vID = '" + sortdata[k].vID + "',
+`cousindb`.swccsstok`.vLastUpdated = '" + sortdata[k].vLastUpdated + "', 
+`cousindb`.swccsstok`.vLastUpdated = '" + sortdata[k].vLastUpdated + "',
+`cousindb`.swccsstok`.vMaterialDesc = '" + sortdata[k].vMaterialDesc + "',
+`cousindb`.swccsstok`.vShowOnSite = '" + sortdata[k].vShowOnSite + "';
