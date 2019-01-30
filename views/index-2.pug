@@ -1,0 +1,71 @@
+extends layout.pug
+
+block content
+    <main role="main"></main>
+<div class="jumbotron">
+	<div class="container">
+		<h1 class="display-3">WordPress Sync 1.2</h1>
+		<p>Playground for Cousin Corporation product sync.</p>
+		<p><a class="btn btn-primary btn-lg" href="#" onclick="startSync();" role="button">Test »</a></p>
+	</div>
+</div>
+<div class="container">
+	<!-- Example row of columns-->
+	<div class="row">
+		<div class="col-md-4">
+			<h2>DIY Beta V 1.1</h2>
+			<ul>
+				<li>Create a JSON file by querying CCA_Item_Descriptions table for the product data to import. </li>
+				<li>Export that data into a valid CSV.</li>
+				<li>FTP that CSV file to a location DIY server.</li><a class="btn btn-primary" href="#" role="button">RUN »</a>
+			</ul>
+		</div>
+		<div class="col-md-4" style="position:relative;">
+			<h2>LJ Event Sync V 1.0</h2>
+			<ul>
+				<li>Create categories for events </li>
+				<li>Put products in those events. </li>
+				<li>FTP that CSV file to a location LJ server.</li><button class="btn btn-primary" type="button" (click)="testing()"
+				 style="position:absolute;">RUN »</button>
+			</ul>
+		</div>
+		<div class="col-md-4">
+			<h2>Cosmo Sync V 0.0</h2>
+			<ul>
+				<li>Coming Soon </li>
+				<li>Will sync prods, images, and categories</li>
+				<li>FTP that CSV file to a location Cosmo server.</li><button class="btn btn-primary" type="button" onclick="testing();">RUN
+					»</button>
+			</ul>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-md-4">
+			<h2>Beta V 1.0</h2>
+			<ul>
+				<li>Create a JSON file by querying CCA_Item_Descriptions table for the product data to import. </li>
+				<li>Export that data into a valid CSV.</li>
+				<li>FTP that CSV file to a location DIY server.</li><a class="btn btn-secondary" href="#" role="button">View
+					details »</a>
+			</ul>
+		</div>
+		<div class="col-md-4">
+			<form>
+				<div class="form-group"><label for="exampleFormControlTextarea1">JSON Response</label><textarea class="form-control"
+					 id="response_area" rows="5"></textarea></div>
+			</form>
+		</div>
+		<div class="col-md-4">
+			<form>
+				<div class="form-group"><label for="exampleFormControlInput1">API URL</label><input class="form-control" id="api-url"
+					 type="text" placeholder="name@example.com">
+					<div style="padding-top: 5px"><button class="btn btn-primary" type="button" onclick="testing();">Primary</button></div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<hr>
+</div>
+      
+    

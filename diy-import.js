@@ -66,12 +66,7 @@ json2csv
 
 var Client = require('ftp');
 var c = new Client();
-var connectionProperties = {
-		host: '166.62.36.69',
-		port: 21,
-		user: '1305@clearancebeads.com',
-		password: 'HowNowBrownCow'
-};
+var connectionProperties = (CousinDB);
 
 c.on('ready', function() {
 	c.put('items900.csv', 'items900-remote.csv', function(err) {

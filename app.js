@@ -1,22 +1,31 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const fs = require('fs');
+const sql = require('mssql');
+const cors = require('cors');
 const https = require('https');
 const axios = require('axios');
-const fs = require('fs');
-const cors = require('cors');
-const sql = require('mssql');
-const dbconfig = require('./config/DB');
 const cProps = require('./config/ftpParams');
-const dotenv = require('dotenv').config();
+const express = require('express');
+const wooProps = require('./config/wooParams');
+const dbconfig = require('./config/DB');
+const bodyParser = require('body-parser');
+const WooCommerceAPI = require('woocommerce-api');
+const cousindbconfig = require('./config/CousinDB');
+
 const app = express();
+const WooCommerce = new WooCommerceAPI( wooProps );
+
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(cors());
 app.use(express.static('public'));
 
-
 app.set('view engine', 'pug');
+
+app.listen(3000, () => {
+  console.log('The application is running the product sync.');
+});
+
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index-2');
 });
 
 app.get('/about', (req, res) => {
@@ -29,10 +38,6 @@ app.get('/hello', (req, res) => {
 
 app.post('/hello', (req, res) => {
   res.render('hello', { name: req.body.username });
-});
-
-app.listen(3000, () => {
-  console.log('The application is running the product sync.');
 });
 
 app.get('/save', function (req, res) {
@@ -51,15 +56,6 @@ app.get('/getljevents', function (req, res) {
   getljevents();
 });
 
-
-
-// PULL BACK ALL CONTACTS WITH ACCOUNT NUMBER AND SAVE IN A VARIABLE  - DONEEE
-////////////////////////////////////////////////////////////////////////
-/*
-1) getProducts -->   Create a JSON file that will contain the data you want to import.
-2) json2csv    -->   Export that data into a valid CSV. 
-3) c.connect   -->   FTP that CSv file to a location ---> DIY or Google Docs
-*/
 
 function getProducts() {
   sql.connect(dbconfig).then(pool =>  {
@@ -108,36 +104,25 @@ function getProducts() {
 
 function getljevents() {
   sql.connect(dbconfig).then(pool =>  {
-    //const request = new sql.Request();
     return pool.request()
-    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vEvents AS vEvents WHERE dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '800' AND WHERE dbo.CCA_ITEM_DESCRIPTIONS.vEvents <> ''");
+    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vEvents AS vEvents FROM dbo.CCA_ITEM_DESCRIPTIONS WHERE dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '800' AND dbo.CCA_ITEM_DESCRIPTIONS.vEvents <> ''");
   }).then(result => {
       items = JSON.stringify(result.recordset);
-			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-			Object.keys(items).forEach (function (k) {
-				items[k].imagefilename = "http://www.clearancebeads.com/diyimages/" + items[k].vItemNumber + ".jpg, http://www.clearancebeads.com/diyimages/" + items[k].vItemNumber + "-2.jpg, http://www.clearancebeads.com/diyimages/" + items[k].vItemNumber + "-3.jpg, http://www.clearancebeads.com/diyimages/" + items[k].vItemNumber + "-4.jpg, http://www.clearancebeads.com/diyimages/" + items[k].vItemNumber + "-5.jpg";
+      items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
+
+      Object.keys(items).forEach (function (k) {
+        var lastChar = items[k].vEvents[items[k].vEvents.length -1];
+        items[k].vEvents =	items[k].vEvents.split(",");
+        if (lastChar === ',')
+          items[k].vEvents.pop();
 			});
-      fs.writeFile('items900.js', JSON.stringify(items), 'utf8', (error) => {
+
+      fs.writeFile('ljevents.js', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
-        
-        const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vSpecificColor", "vGenColor", "vGenMaterial", "vGenItemType", "vShape", "vSizeType", "vMetalColor", "vMetalType", "vDimensions", "vPcCounts", "vKeywords", "vOnSale", "vFeaturedItem", "vSorting", "vAggregation", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename"];
-        const opts = { fields };
-        const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('items900.js', { encoding: 'utf8' });
-        const output = fs.createWriteStream('items900.csv', { encoding: 'utf8' });
-        const json2csv = new Json2csvTransform(opts, transformOpts);
-        const processor = input.pipe(json2csv).pipe(output);
-        json2csv
-        //  .on('header', header => console.log(header))
-        //  .on('line', line => console.log(line))
-          .on('error', err => console.log(err));
-        console.log("JSON has been created.");
       });
   }).then(() => {
     c.connect(cProps);
-    
   }).then(() => {
     sql.close();
   }).catch(err => {
@@ -164,6 +149,61 @@ c.on('ready', function() {
 //c.connect(cProps);
 
 
+function testing() {
+  var range  = [2, 3, 4, 5, 6, 7, 8,];
+  range.forEach(function(i) {
+    WooCommerce.get("products/categories/764" + i +"", function(err, data, res){
+    // err will return any errors that occur
+    // data will contain the body content from the request
+    // res is the full response object, use this to get headers etc
+      console.log(data);
+    });
+  });
+}
+
+function testing2() {
+  var exdata = {
+    categories: [{"id": 7643, "name": "Holiday Party", "slug": "holiday-party"}]
+  };
+  var data = {
+    categories: [{
+      "id": 6148,
+      "name": "FABRIC",
+      "slug": "item_material-fabric"
+    }, {
+      "id": 6166,
+      "name": "Green",
+      "slug": "color-green"
+    }, {
+      "id": 6146,
+      "name": "MANTRA",
+      "slug": "look-mantra"
+    }, {
+      "id": 7313,
+      "name": "Mantra Scarves V1 Assortment",
+      "slug": "program_name-mantra-scarves-v1-assortment"
+    }, {
+      "id": 7479,
+      "name": "Scarves",
+      "slug": "item_type-scarves"
+    }, {
+      "id": 7521,
+      "name": "SS17 Catalog",
+      "slug": "launch_season-ss17-catalog"
+    }]
+  };
+    WooCommerce.put("products/118521", data, function(err, data, res){
+    // err will return any errors that occur
+    // data will contain the body content from the request
+    // res is the full response object, use this to get headers etc
+    
+    console.log(res);
+    //console.log(err);
+    });
+ 
+}
+
+testing2();
 
 
 
