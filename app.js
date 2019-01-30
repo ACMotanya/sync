@@ -150,17 +150,17 @@ c.on('ready', function() {
 
 
 function testing() {
-  var range  = [2, 3, 4, 5, 6, 7, 8,];
+  var range  = [0, 1];
   range.forEach(function(i) {
     WooCommerce.get("products/categories/764" + i +"", function(err, data, res){
     // err will return any errors that occur
     // data will contain the body content from the request
     // res is the full response object, use this to get headers etc
-      console.log(data);
+      console.log(res);
     });
   });
 }
-
+//testing();
 function testing2() {
   var exdata = {
     categories: [{"id": 7643, "name": "Holiday Party", "slug": "holiday-party"}]
@@ -203,8 +203,37 @@ function testing2() {
  
 }
 
-testing2();
+//testing2();
+function assignCats()
+{
+  //Get JSON object of items with their current categories.
+  var itemdata = fs.readFileSync('ljevents.js', 'utf-8');
+  itemdata = JSON.parse(itemdata);
+  var cntr = 0;
+	Object.keys(itemdata).forEach (function (k) {
+    //console.log(itemdata[k].vItemNumber);
+    cntr++;
+    WooCommerce.get("products/?filter[sku]=" + itemdata[k].vItemNumber + "--800_PROD", function(err, data, res){
+      console.log(data);
+      
+      if (cntr >= 2) {
+        wait(20000);
+        cntr = 0;
+      }
+    });
+    
+  });
+}
+assignCats();
 
+
+function wait(ms){
+  var start = new Date().getTime();
+  var end = start;
+  while(end < start + ms) {
+    end = new Date().getTime();
+ }
+}
 
 
 
