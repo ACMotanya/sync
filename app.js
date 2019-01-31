@@ -3,7 +3,7 @@ const sql = require('mssql');
 const cors = require('cors');
 const https = require('https');
 const axios = require('axios');
-const cProps = require('./config/ftpParams');
+//const cProps = require('./config/ftpParams');
 const express = require('express');
 const wooProps = require('./config/wooParams');
 const dbconfig = require('./config/DB');
@@ -213,10 +213,10 @@ function assignCats()
 	Object.keys(itemdata).forEach (function (k) {
     //console.log(itemdata[k].vItemNumber);
     cntr++;
-    WooCommerce.get("products/?filter[sku]=" + itemdata[k].vItemNumber + "--800_PROD", function(err, data, res){
+    WooCommerce.getAsync("products/?filter[sku]=" + itemdata[k].vItemNumber + "--800_PROD", function(err, data, res){
       console.log(data);
       
-      if (cntr >= 2) {
+      if (cntr >= 10) {
         wait(20000);
         cntr = 0;
       }
