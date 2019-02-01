@@ -257,47 +257,121 @@ function testing2() {
 //testing2();
 var cntr = 0;
 var idx = 0;
-
-var itemdata = fs.readFileSync('ljevents.js', 'utf-8');
+/*
+var itemdata = fs.readFileSync('oldevents.js', 'utf-8');
 itemdata = JSON.parse(itemdata);
+itemdata = JSON.parse(itemdata[0]);
+//console.log(itemdata);
+
+newdata = [];
+Object.keys(itemdata).forEach (function (k) {
+  go_in = [];
+  sku = itemdata[k].sku.toString();
+  cats = JSON.stringify(itemdata[k].categories);
+  go_in.push(sku, cats);
+  
+  //newdata.push(go_in);
+  fs.appendFile("slimoldevents.js", go_in, function(err){
+    if(err) throw err;
+    console.log('IT IS WRITTEN');
+  });
+});
+*/
+//var itemdata = fs.readFileSync('prod_id.js', 'utf-8');
+//itemdata = JSON.parse(itemdata);
+//console.log( itemdata[idx].vItemNumber);
+
 
 function assignCats()
 {
   setTimeout( function() {
-    WooCommerce.get("products/?filter[sku]=" + itemdata[idx].vItemNumber + "--800_PROD", function(err, data, res){
-      //console.log(res);
-      result = JSON.stringify(res);
-      fs.appendFile("oldevents.js", result, function(err){
+    WooCommerce.get("products/" + itemdata[idx].id + "", function(err, data, res){
+     
+      result = JSON.parse(res);
+    
+      console.log(result.sku);
+      go_in = [];
+      sku = JSON.stringify(result.sku);
+    
+      cats = JSON.stringify(result.categories);
+      go_in.push(sku, cats);
+    
+      fs.appendFile("oldevents.js", go_in, function(err){
         if(err) throw err;
         console.log('IT IS WRITTEN');
       });
+     
+      console.log(idx);
+      idx++;
       cntr++;
       if (cntr <= itemdata.length) {
         assignCats();
       }
     });
-  }, 1500);
+  }, 1000);
 }
-assignCats();
+//assignCats();
+newset = [];
+/*
+var itemdata = fs.readFileSync('newevents.js', 'utf-8');
+itemdata = JSON.parse(itemdata);
+
+var eventdata = fs.readFileSync('prod_id.js', 'utf-8');
+eventdata = JSON.parse(eventdata);
 
 
+Object.keys(itemdata).forEach (function (k) {
+  sku = itemdata[k].sku;
+
+ //sku = sku.slice(0, sku.indexOf("--"));
+  Object.keys(eventdata).forEach (function (m) {
+    item = eventdata[m].sku;
+    eventcat = eventdata[m].id;
+    if (sku === item ){
+      
+        itemdata[k].id = eventcat;
+    
+    }
+  });
+  console.log(itemdata[k]);
+  newset.push(itemdata[k]);
+});
+
+setTimeout( function() {
+
+fs.writeFile("newevents2.js", JSON.stringify(newset), function(err){
+});
+
+}, 4000);
+*/
 
 
+var itemdata = fs.readFileSync('newevents2.js', 'utf-8');
+itemdata = JSON.parse(itemdata);
+console.log( itemdata[idx].categories);
+
+function assignNewCats()
+{
+  setTimeout( function() {
+     data = {categories :  itemdata[idx].categories};
+    WooCommerce.put("products/" + itemdata[idx].id + "",data,  function(err, data, res){
+     
+      result = JSON.parse(res);
+    
+      console.log(result.categories);
+      
+     
+      console.log(idx);
+      idx++;
+      cntr++;
+      if (cntr <= itemdata.length) {
+        assignNewCats();
+      }
+    });
+  }, 1000);
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+assignNewCats();
 
 
