@@ -12,3 +12,8 @@ function ljevents()
 {
 	$.get("http://localhost:3000/getljevents/");
 }
+
+function saveSWDBinfo()
+{
+	$.get("http://localhost:3000/swdb800info/");
+}

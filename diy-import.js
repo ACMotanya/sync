@@ -23,8 +23,8 @@ server.listen(port, hostname, () => {
 /*
 1) getProducts -->   Create a JSON file that will contain the data you want to import. 
 2) addImages   -->   Add in the imagefilename field data for items900 JSON file. NOT REAALLLLY NEEDED
-2) json2csv    -->   Export that data into a valid CSV. 
-3) c.connect   -->   FTP that CSv file to a location ---> DIY or Google Docs
+2) json2csv    -->   Export that data into a valid CSV.
+3) c.connect   -->   FTP that CSV file to a location ---> DIY or Google Docs
 */
 
 function getProducts() {

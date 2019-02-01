@@ -24,11 +24,10 @@ SELECT
        dbo.cca_item_descriptions.vEvents        AS vEvents, 
        dbo.cca_item_descriptions.vDetailDesc    AS vDetailDesc, 
        dbo.cca_item_descriptions.vFeatureDesc   AS vFeatureDesc, 
-       dbo.cca_item_descriptions.vID            AS vID, 
-       dbo.cca_item_descriptions.vLastUpdated   AS vLastUpdated, 
+       dbo.cca_item_descriptions.vID            AS vID,
        dbo.cca_item_descriptions.vLastUpdated   AS vLastUpdated, 
        dbo.cca_item_descriptions.vMaterialDesc  AS vMaterialDesc, 
-       dbo.cca_item_descriptions.vShowOnSite    AS vAShowOnSite,
+       dbo.cca_item_descriptions.vShowOnSite    AS vShowOnSite,
 FROM   
 	dbo.cca_item_descriptions 
 WHERE  
@@ -65,7 +64,6 @@ SET
 `cousindb`.swccsstok`.vDetailDesc = '" + sortdata[k].vDetailDesc + "',
 `cousindb`.swccsstok`.vFeatureDesc = '" + sortdata[k].vFeatureDesc + "',
 `cousindb`.swccsstok`.vID = '" + sortdata[k].vID + "',
-`cousindb`.swccsstok`.vLastUpdated = '" + sortdata[k].vLastUpdated + "', 
 `cousindb`.swccsstok`.vLastUpdated = '" + sortdata[k].vLastUpdated + "',
 `cousindb`.swccsstok`.vMaterialDesc = '" + sortdata[k].vMaterialDesc + "',
 `cousindb`.swccsstok`.vShowOnSite = '" + sortdata[k].vShowOnSite + "';
