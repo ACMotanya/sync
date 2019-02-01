@@ -263,20 +263,20 @@ itemdata = JSON.parse(itemdata);
 
 function assignCats()
 {
-  //Get JSON object of items with their current categories.
   setTimeout( function() {
-   // Object.keys(itemdata).forEach (function (k) {
-      //console.log(itemdata[k].vItemNumber);
-      
-      WooCommerce.get("products/?filter[sku]=" + itemdata[idx].vItemNumber + "--800_PROD", function(err, data, res){
-        console.log(res);
-        cntr++;
-        if (cntr <= itemdata.length) {
-          assignCats();
-        }
+    WooCommerce.get("products/?filter[sku]=" + itemdata[idx].vItemNumber + "--800_PROD", function(err, data, res){
+      //console.log(res);
+      result = JSON.stringify(res);
+      fs.appendFile("oldevents.js", result, function(err){
+        if(err) throw err;
+        console.log('IT IS WRITTEN');
       });
-   // });
-  }, 3000);
+      cntr++;
+      if (cntr <= itemdata.length) {
+        assignCats();
+      }
+    });
+  }, 1500);
 }
 assignCats();
 
