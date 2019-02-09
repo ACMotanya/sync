@@ -8,7 +8,6 @@ const cProps = require('./config/ftpParams');
 const express = require('express');
 const wooProps = require('./config/wooParams');
 const dbconfig = require('./config/DB');
-
 const bodyParser = require('body-parser');
 const WooCommerceAPI = require('woocommerce-api');
 const cousindbconfig = require('./config/CousinDB');
@@ -26,41 +25,7 @@ app.listen(3000, () => {
   console.log('The application is running the product sync.');
 });
 
-app.get('/', (req, res) => {
-  res.render('index-2');
-});
-
-app.get('/about', (req, res) => {
-  res.render('card', {prompt: "Guys"});
-});
-
-app.get('/hello', (req, res) => {
-  res.render('hello');
-});
-
-app.post('/hello', (req, res) => {
-  res.render('hello', { name: req.body.username });
-});
-
-app.get('/save', function (req, res) {
-  fs.writeFile('log.txt', 'This is my text', function (err) {
-    if (err) throw err;
-    console.log('Replaced!');
-    res.send('Replaced!');
-  });
-});
-
-app.get('/getprods', function (req, res) {
-  getProducts();
-});
-
-app.get('/getljevents', function (req, res) {
-  getljevents();
-});
-
-app.get('/swdb800info', function (req, res) {
-  getProducts800() ;
-});
+require('./routes/routes.js')(app);
 
 
 function getProducts() {
@@ -94,7 +59,6 @@ function getProducts() {
       });
   }).then(() => {
     c.connect(cProps);
-    
   }).then(() => {
     sql.close();
   }).catch(err => {
@@ -112,7 +76,7 @@ function getProducts800() {
   sql.connect(dbconfig).then(pool =>  {
     //const request = new sql.Request();
     return pool.request()
-    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vLocation AS vLocation, dbo.CCA_ITEM_DESCRIPTIONS.vDescription AS vDescription, dbo.CCA_ITEM_DESCRIPTIONS.vShortDesc AS vShortDesc, dbo.CCA_ITEM_DESCRIPTIONS.vLook AS vLook, dbo.CCA_ITEM_DESCRIPTIONS.vGenColor AS vGenColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType AS vGenItemType, dbo.CCA_ITEM_DESCRIPTIONS.vSizeType AS vSizetype, dbo.CCA_ITEM_DESCRIPTIONS.vMetalColor AS vMetalColor, dbo.CCA_ITEM_DESCRIPTIONS.vDimensions AS vDimensions, dbo.CCA_ITEM_DESCRIPTIONS.vKeywords AS vKeywords, dbo.CCA_ITEM_DESCRIPTIONS.vOnSale AS vOnSale, dbo.CCA_ITEM_DESCRIPTIONS.vFeaturedItem AS vFeaturedItem,  dbo.CCA_ITEM_DESCRIPTIONS.vSorting AS vSorting, dbo.CCA_ITEM_DESCRIPTIONS.vAggregation AS vAggregation, dbo.CCA_ITEM_DESCRIPTIONS.vLastUpdated AS vLastUpdated, dbo.CCA_ITEM_DESCRIPTIONS.vDetailDesc    AS vDetailDesc, dbo.CCA_ITEM_DESCRIPTIONS.vFeatureDesc   AS vFeatureDesc, dbo.CCA_ITEM_DESCRIPTIONS.vMaterialDesc AS vMaterialDesc, dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite AS vShowOnSite, dbo.SWCCSSTOK.itemprice_1 AS itemprice_1, dbo.SWCCSSTOK.itemprice_2 AS itemprice_2, dbo.SWCCSSTOK.quantityonhand AS quantityonhand FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = dbo.SWCCSSTOK.locationnumber WHERE dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '800'");
+    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vLocation AS vLocation, dbo.CCA_ITEM_DESCRIPTIONS.vDescription AS vDescription, dbo.CCA_ITEM_DESCRIPTIONS.vShortDesc AS vShortDesc, dbo.CCA_ITEM_DESCRIPTIONS.vLook AS vLook, dbo.CCA_ITEM_DESCRIPTIONS.vLaunchSeason AS vLaunchSeason, dbo.CCA_ITEM_DESCRIPTIONS.vGenColor AS vGenColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType AS vGenItemType, dbo.CCA_ITEM_DESCRIPTIONS.vSizeType AS vSizetype, dbo.CCA_ITEM_DESCRIPTIONS.vMetalColor AS vMetalColor, dbo.CCA_ITEM_DESCRIPTIONS.vDimensions AS vDimensions, dbo.CCA_ITEM_DESCRIPTIONS.vKeywords AS vKeywords, dbo.CCA_ITEM_DESCRIPTIONS.vOnSale AS vOnSale, dbo.CCA_ITEM_DESCRIPTIONS.vFeaturedItem AS vFeaturedItem,  dbo.CCA_ITEM_DESCRIPTIONS.vSorting AS vSorting, dbo.CCA_ITEM_DESCRIPTIONS.vAggregation AS vAggregation, dbo.CCA_ITEM_DESCRIPTIONS.vLastUpdated AS vLastUpdated, dbo.CCA_ITEM_DESCRIPTIONS.vDetailDesc    AS vDetailDesc, dbo.CCA_ITEM_DESCRIPTIONS.vFeatureDesc   AS vFeatureDesc, dbo.CCA_ITEM_DESCRIPTIONS.vMaterialDesc AS vMaterialDesc, dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite AS vShowOnSite, dbo.SWCCSSTOK.itemprice_1 AS itemprice_1, dbo.SWCCSSTOK.itemprice_2 AS itemprice_2, dbo.SWCCSSTOK.quantityonhand AS quantityonhand FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = dbo.SWCCSSTOK.locationnumber WHERE dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '800'");
   }).then(result => {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
@@ -136,7 +100,7 @@ function getProducts800() {
 
 
 
-var connection = mysql.createConnection(cousindbconfig);
+//var connection = mysql.createConnection(cousindbconfig);
 
 function updateDescQuery() {
 	connection.connect();
@@ -144,10 +108,18 @@ function updateDescQuery() {
   sortdata = JSON.parse(sortdata);
 
   Object.keys(sortdata).forEach(function (k) {
-  	connection.query("UPDATE `CousinDB`.`CCA_ITEM_DESCRIPTIONS` set vLook = '" + sortdata[k].vLook + "', vgencolor = '" + sortdata[k].vGenColor + "', vgenmaterial = '" + sortdata[k].vGenMaterial + "', vgenitemtype = '" + sortdata[k].vGenItemType + "',  vsizetype = '" + sortdata[k].vSizetype + "',  vmetalcolor = '" + sortdata[k].vMetalColor + "',  vdimensions = '" + sortdata[k].vDimensions + "', vonsale = '" + sortdata[k].vOnSale + "',  vfeatureditem = '" + sortdata[k].vFeaturedItem + "', vsorting = '" + sortdata[k].vSorting + "', vaggregation = '" + sortdata[k].vAggregation + "', vDetailDesc = '" + sortdata[k].vDetailDesc + "', vFeatureDesc = '" + sortdata[k].vFeatureDesc + "', vLastUpdated = '" + sortdata[k].vLastUpdated + "', vMaterialDesc = '" + sortdata[k].vMaterialDesc + "', vShowOnSite = '" + sortdata[k].vShowOnSite + "' WHERE vItemnumber = '" + sortdata[k].vItemNumber + "' and vlocation = '800'", (error, results, fields) => {
+  	connection.query("UPDATE `CousinDB`.`CCA_ITEM_DESCRIPTIONS` set vLook = '" + sortdata[k].vLook + "', vgencolor = '" + sortdata[k].vGenColor + "', vLaunchSeason = '" + sortdata[k].vLaunchSeason + "', vgenmaterial = '" + sortdata[k].vGenMaterial + "', vgenitemtype = '" + sortdata[k].vGenItemType + "',  vsizetype = '" + sortdata[k].vSizetype + "',  vmetalcolor = '" + sortdata[k].vMetalColor + "',  vdimensions = '" + sortdata[k].vDimensions + "', vonsale = '" + sortdata[k].vOnSale + "',  vfeatureditem = '" + sortdata[k].vFeaturedItem + "', vsorting = '" + sortdata[k].vSorting + "', vaggregation = '" + sortdata[k].vAggregation + "', vDetailDesc = '" + sortdata[k].vDetailDesc + "', vFeatureDesc = '" + sortdata[k].vFeatureDesc + "', vLastUpdated = '" + sortdata[k].vLastUpdated + "', vShowOnSite = '" + sortdata[k].vShowOnSite + "' WHERE vItemnumber = '" + sortdata[k].vItemNumber + "' and vlocation = '800'", (error, results, fields) => {
   		if (error) throw error;
     });
   });
+  /*
+ Object.keys(sortdata).forEach(function (k) {
+  connection.query("UPDATE `CousinDB`.`SWCCSSTOK` set quantityonhand = '" + sortdata[k].quantityonhand + "', itemprice_2 = '" + sortdata[k].itemprice_2 + "', itemprice_1 = '" + sortdata[k].itemprice_1 + "' WHERE stocknumber = '" + sortdata[k].vItemNumber + "' and locationnumber = '800'", (error, results, fields) => {
+    if (error) throw error;
+  });
+  
+});
+*/
 }
 
 //updateDescQuery();
@@ -217,30 +189,24 @@ function testing2() {
     categories: [{"id": 7643, "name": "Holiday Party", "slug": "holiday-party"}]
   };
   var data = {
-    categories: [{
-      "id": 6148,
-      "name": "FABRIC",
-      "slug": "item_material-fabric"
-    }, {
-      "id": 6166,
-      "name": "Green",
-      "slug": "color-green"
-    }, {
-      "id": 6146,
-      "name": "MANTRA",
-      "slug": "look-mantra"
-    }, {
-      "id": 7313,
-      "name": "Mantra Scarves V1 Assortment",
-      "slug": "program_name-mantra-scarves-v1-assortment"
-    }, {
-      "id": 7479,
-      "name": "Scarves",
-      "slug": "item_type-scarves"
-    }, {
-      "id": 7521,
-      "name": "SS17 Catalog",
-      "slug": "launch_season-ss17-catalog"
+    "meta_data": [{
+      "key": "_role_based_price",
+      "value": {
+        "0": {
+          "wholesale_customer": {
+            "regular_price": "8.7500"
+          },
+          "customer": {
+            "regular_price": "19.9900"
+          },
+          "administrator": {
+            "regular_price": "19.9900"
+          },
+          "logedout": {
+            "regular_price": "19.9900"
+          }
+        }
+      }
     }]
   };
     WooCommerce.put("products/118521", data, function(err, data, res){
@@ -251,12 +217,11 @@ function testing2() {
     console.log(res);
     //console.log(err);
     });
- 
 }
 
-//testing2();
-var cntr = 0;
-var idx = 0;
+testing2();
+//var cntr = 0;
+//var idx = 0;
 /*
 var itemdata = fs.readFileSync('oldevents.js', 'utf-8');
 itemdata = JSON.parse(itemdata);
@@ -311,7 +276,7 @@ function assignCats()
   }, 1000);
 }
 //assignCats();
-newset = [];
+//newset = [];
 /*
 var itemdata = fs.readFileSync('newevents.js', 'utf-8');
 itemdata = JSON.parse(itemdata);
@@ -346,9 +311,8 @@ fs.writeFile("newevents2.js", JSON.stringify(newset), function(err){
 */
 
 
-var itemdata = fs.readFileSync('newevents2.js', 'utf-8');
-itemdata = JSON.parse(itemdata);
-console.log( itemdata[idx].categories);
+//var itemdata = fs.readFileSync('newevents2.js', 'utf-8');
+//itemdata = JSON.parse(itemdata);
 
 function assignNewCats()
 {
@@ -372,6 +336,6 @@ function assignNewCats()
 }
 
 
-assignNewCats();
+//assignNewCats();
 
 
