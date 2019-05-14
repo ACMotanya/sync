@@ -173,7 +173,7 @@ function getProducts800() {
 function getProducts400() {
   sql.connect(dbconfig).then(pool =>  {
     return pool.request()
-    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vMetalType, vKeywords, vOnSale, vFeaturedItem, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '400' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 10 and ([vAggregation] <> '' OR [vAggregation] IS NOT NULL) ORDER BY vAggregation");
+    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vMetalType, vKeywords, vOnSale, vFeaturedItem, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '400' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 10 ORDER BY vAggregation");
   }).then(result => {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
@@ -202,7 +202,7 @@ function getProducts400() {
     var Client = require('ftp');
     var c = new Client();
     c.on('ready', function() {
-      c.put('items400.csv', 'items400-remote-test.csv', function(err) {
+      c.put('items400.csv', 'items400-remote.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
