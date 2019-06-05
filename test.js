@@ -4,54 +4,52 @@ const cors = require('cors');
 const mysql = require('mysql');
 const https = require('https');
 const axios = require('axios');
-const Client = require('ftp');
 const express = require('express');
 const wooProps = require('./config/wooParams');
 const dbconfig = require('./config/DB');
 const cProps900 = require('./config/ftpParams');
-const cProps800 = require('./config/ftpParams800');
 const cProps400 = require('./config/ftpParams400');
 const bodyParser = require('body-parser');
 const WooCommerceAPI = require('woocommerce-api');
 const cousindbconfig = require('./config/CousinDB');
-
+ 
 const app = express();
 const WooCommerce = new WooCommerceAPI( wooProps );
-
+ 
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(cors());
 app.use(express.static('public'));
-
+ 
 app.set('view engine', 'pug');
-
+ 
 app.listen(3000, () => {
   console.log('The application is running the product sync.');
 });
-
+ 
 //require('./routes/routes.js')(app);
-
+ 
 app.get('/login', function(req, res){
   res.render('login', {
-    title: 'Express Login'
+      title: 'Express Login'
   });
 });
-
+ 
 app.get('/', (req, res) => {
 res.render('index-2');
 });
-
+ 
 app.get('/about', (req, res) => {
 res.render('card', {prompt: "Guys"});
 });
-
+ 
 app.get('/hello', (req, res) => {
 res.render('hello');
 });
-
+ 
 app.post('/hello', (req, res) => {
 res.render('hello', { name: req.body.username });
 });
-
+ 
 app.get('/save', function (req, res) {
   fs.writeFile('log.txt', 'This is my text', function (err) {
     if (err) throw err;
@@ -59,21 +57,18 @@ app.get('/save', function (req, res) {
     res.send('Replaced!');
   });
 });
-
+ 
 app.get('/getprods', function (req, res) {
   getProducts();
 });
 app.get('/getprods400', function (req, res) {
   getProducts400();
 });
-app.get('/getprods800', function (req, res) {
-  getProducts800();
-});
-
+ 
 app.get('/getljevents', function (req, res) {
   getljevents();
 });
-
+ 
 app.get('/swdb800info', function (req, res) {
   getProducts800();
 });
@@ -85,30 +80,30 @@ const agg = "([vAggregation] <> '' OR [vAggregation] IS NOT NULL)";
 const nonAgg = "([vAggregation] IS NULL or [vAggregation] = '')";
 const cosWhere = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10 AND ";
 const cosWherePrograms = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'Programs' or dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'assortments') ";
-
+ 
 function getProducts() {
   sql.connect(dbconfig).then(pool =>  {
     //const request = new sql.Request();
     return pool.request()
-    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vLocation AS vLocation, dbo.CCA_ITEM_DESCRIPTIONS.vDescription AS vDescription, dbo.CCA_ITEM_DESCRIPTIONS.vShortDesc AS vShortDesc,	dbo.CCA_ITEM_DESCRIPTIONS.vLook AS vLook, dbo.CCA_ITEM_DESCRIPTIONS.vSpecificColor AS vSpecificColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenColor AS vGenColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenMaterial AS vGenMaterial, dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType AS vGenItemType, dbo.CCA_ITEM_DESCRIPTIONS.vShape AS vShape, dbo.CCA_ITEM_DESCRIPTIONS.vSizeType AS vSizetype, dbo.CCA_ITEM_DESCRIPTIONS.vMetalColor AS vMetalColor, dbo.CCA_ITEM_DESCRIPTIONS.vMetalType AS vMetalType, dbo.CCA_ITEM_DESCRIPTIONS.vDimensions AS vDimensions, dbo.CCA_ITEM_DESCRIPTIONS.vPcCounts AS vPcCounts, dbo.CCA_ITEM_DESCRIPTIONS.vKeywords AS vKeywords, dbo.CCA_ITEM_DESCRIPTIONS.vOnSale AS vOnSale, dbo.CCA_ITEM_DESCRIPTIONS.vFeaturedItem AS vFeaturedItem,  dbo.CCA_ITEM_DESCRIPTIONS.vSorting AS vSorting, dbo.CCA_ITEM_DESCRIPTIONS.vAggregation AS vAggregation, dbo.SWCCSSTOK.itemprice_1 AS itemprice_1, dbo.SWCCSSTOK.itemprice_2 AS itemprice_2, dbo.SWCCSSTOK.quantityonhand AS quantityonhand FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = dbo.SWCCSSTOK.locationnumber WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '900' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10");
+    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vLocation AS vLocation, dbo.CCA_ITEM_DESCRIPTIONS.vDescription AS vDescription, dbo.CCA_ITEM_DESCRIPTIONS.vShortDesc AS vShortDesc,  dbo.CCA_ITEM_DESCRIPTIONS.vLook AS vLook, dbo.CCA_ITEM_DESCRIPTIONS.vSpecificColor AS vSpecificColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenColor AS vGenColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenMaterial AS vGenMaterial, dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType AS vGenItemType, dbo.CCA_ITEM_DESCRIPTIONS.vShape AS vShape, dbo.CCA_ITEM_DESCRIPTIONS.vSizeType AS vSizetype, dbo.CCA_ITEM_DESCRIPTIONS.vMetalColor AS vMetalColor, dbo.CCA_ITEM_DESCRIPTIONS.vMetalType AS vMetalType, dbo.CCA_ITEM_DESCRIPTIONS.vDimensions AS vDimensions, dbo.CCA_ITEM_DESCRIPTIONS.vPcCounts AS vPcCounts, dbo.CCA_ITEM_DESCRIPTIONS.vKeywords AS vKeywords, dbo.CCA_ITEM_DESCRIPTIONS.vOnSale AS vOnSale, dbo.CCA_ITEM_DESCRIPTIONS.vFeaturedItem AS vFeaturedItem,  dbo.CCA_ITEM_DESCRIPTIONS.vSorting AS vSorting, dbo.CCA_ITEM_DESCRIPTIONS.vAggregation AS vAggregation, dbo.SWCCSSTOK.itemprice_1 AS itemprice_1, dbo.SWCCSSTOK.itemprice_2 AS itemprice_2, dbo.SWCCSSTOK.quantityonhand AS quantityonhand FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = dbo.SWCCSSTOK.locationnumber WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '900' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10");
   }).then(result => {
       items = JSON.stringify(result.recordset);
-			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-			Object.keys(items).forEach (function (k) {
+      items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
+      Object.keys(items).forEach (function (k) {
         items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg";
         var lookAttr = items[k].vLook.split(",");
         items[k].lookAttr = lookAttr[0];
-
+ 
         var funcAttr = items[k].vGenItemType.split(",");
         items[k].funcAttr = funcAttr[0];
-
+ 
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
-			});
+      });
       fs.writeFile('items900.js', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
-        
+       
         const Json2csvTransform = require('json2csv').Transform;
         const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vSpecificColor", "vGenColor", "vGenMaterial", "vGenItemType", "vShape", "vSizeType", "vMetalColor", "vMetalType", "vDimensions", "vPcCounts", "vKeywords", "vOnSale", "vFeaturedItem", "vSorting", "vAggregation", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
         const opts = { fields };
@@ -124,19 +119,18 @@ function getProducts() {
         console.log("JSON has been created.");
       });
   }).then(() => {
-    
-    
+   
+    var Client = require('ftp');
     var c = new Client();
     c.on('ready', function() {
-     
-      c.put('items900.csv', 'new-comp.csv', function(err) {
+      c.put('items900.csv', 'tst.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
       });
     });
     c.connect(cProps900);
-    
+   
   }).then(() => {
     sql.close();
   }).catch(err => {
@@ -148,48 +142,22 @@ function getProducts() {
     console.log(err);
   });
 }
-
-
+ 
 
 function getProducts800() {
   sql.connect(dbconfig).then(pool =>  {
+    //const request = new sql.Request();
     return pool.request()
-    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vKeywords, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 10 ORDER BY vAggregation");
+    .query("SELECT dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber AS vItemNumber, dbo.CCA_ITEM_DESCRIPTIONS.vLocation AS vLocation, dbo.CCA_ITEM_DESCRIPTIONS.vDescription AS vDescription, dbo.CCA_ITEM_DESCRIPTIONS.vShortDesc AS vShortDesc, dbo.CCA_ITEM_DESCRIPTIONS.vLook AS vLook, dbo.CCA_ITEM_DESCRIPTIONS.vLaunchSeason AS vLaunchSeason, dbo.CCA_ITEM_DESCRIPTIONS.vGenColor AS vGenColor, dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType AS vGenItemType, dbo.CCA_ITEM_DESCRIPTIONS.vSizeType AS vSizetype, dbo.CCA_ITEM_DESCRIPTIONS.vMetalColor AS vMetalColor, dbo.CCA_ITEM_DESCRIPTIONS.vDimensions AS vDimensions, dbo.CCA_ITEM_DESCRIPTIONS.vKeywords AS vKeywords, dbo.CCA_ITEM_DESCRIPTIONS.vOnSale AS vOnSale, dbo.CCA_ITEM_DESCRIPTIONS.vFeaturedItem AS vFeaturedItem,  dbo.CCA_ITEM_DESCRIPTIONS.vSorting AS vSorting, dbo.CCA_ITEM_DESCRIPTIONS.vAggregation AS vAggregation, dbo.CCA_ITEM_DESCRIPTIONS.vLastUpdated AS vLastUpdated, dbo.CCA_ITEM_DESCRIPTIONS.vDetailDesc    AS vDetailDesc, dbo.CCA_ITEM_DESCRIPTIONS.vFeatureDesc   AS vFeatureDesc, dbo.CCA_ITEM_DESCRIPTIONS.vMaterialDesc AS vMaterialDesc, dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite AS vShowOnSite, dbo.SWCCSSTOK.itemprice_1 AS itemprice_1, dbo.SWCCSSTOK.itemprice_2 AS itemprice_2, dbo.SWCCSSTOK.quantityonhand AS quantityonhand FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = dbo.SWCCSSTOK.locationnumber WHERE dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '800'");
   }).then(result => {
       items = JSON.stringify(result.recordset);
-			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-		//	Object.keys(items).forEach (function (k) {
-    //    items[k].imagefilename = "https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + ".JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-2.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-3.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-4.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-5.JPG";
-		//	});
-      fs.writeFile('items800.js', JSON.stringify(items), 'utf8', (error) => {
+      items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
+      fs.writeFile('800items_swdb.js', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
-        
-        const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vKeywords", "vSorting", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2"];
-        const opts = { fields };
-        const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('items800.js', { encoding: 'utf8' });
-        const output = fs.createWriteStream('items800.csv', { encoding: 'utf8' });
-        const json2csv = new Json2csvTransform(opts, transformOpts);
-        const processor = input.pipe(json2csv).pipe(output);
-        json2csv
-        //  .on('header', header => console.log(header))
-        //  .on('line', line => console.log(line))
-          .on('error', err => console.log(err));
+ 
         console.log("JSON has been created.");
       });
-  }).then(() => {
-    var Client = require('ftp');
-    var c = new Client();
-    c.on('ready', function() {
-      c.put('items800.csv', 'items800-remote.csv', function(err) {
-        if (err) throw err;
-        c.end();
-        console.log("CSV has been created.");
-      });
-    });
-    c.connect(cProps800);
   }).then(() => {
     sql.close();
   }).catch(err => {
@@ -201,21 +169,21 @@ function getProducts800() {
     console.log(err);
   });
 }
-
+ 
 function getProducts400() {
   sql.connect(dbconfig).then(pool =>  {
     return pool.request()
     .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vMetalType, vKeywords, vOnSale, vFeaturedItem, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '400' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 10 ORDER BY vAggregation");
   }).then(result => {
       items = JSON.stringify(result.recordset);
-			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-			Object.keys(items).forEach (function (k) {
+      items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
+      Object.keys(items).forEach (function (k) {
         items[k].imagefilename = "https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + ".JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-2.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-3.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-4.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-5.JPG";
-			});
+      });
       fs.writeFile('items400.js', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
-        
+       
         const Json2csvTransform = require('json2csv').Transform;
         const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vMetalType", "vKeywords", "vOnSale", "vFeaturedItem", "vSorting", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2", "imagefilename"];
         const opts = { fields };
@@ -234,7 +202,7 @@ function getProducts400() {
     var Client = require('ftp');
     var c = new Client();
     c.on('ready', function() {
-      c.put('items400.csv', 'whoa.csv', function(err) {
+      c.put('items400.csv', 'items400-remote-test.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
@@ -252,31 +220,31 @@ function getProducts400() {
     console.log(err);
   });
 }
-
+ 
 //var connection = mysql.createConnection(cousindbconfig);
-
+ 
 function updateDescQuery() {
-	connection.connect();
+  connection.connect();
   var sortdata = fs.readFileSync('800items_swdb.js', 'utf-8');
   sortdata = JSON.parse(sortdata);
-
+ 
   Object.keys(sortdata).forEach(function (k) {
-  	connection.query("UPDATE `CousinDB`.`CCA_ITEM_DESCRIPTIONS` set vLook = '" + sortdata[k].vLook + "', vgencolor = '" + sortdata[k].vGenColor + "', vLaunchSeason = '" + sortdata[k].vLaunchSeason + "', vgenmaterial = '" + sortdata[k].vGenMaterial + "', vgenitemtype = '" + sortdata[k].vGenItemType + "',  vsizetype = '" + sortdata[k].vSizetype + "',  vmetalcolor = '" + sortdata[k].vMetalColor + "',  vdimensions = '" + sortdata[k].vDimensions + "', vonsale = '" + sortdata[k].vOnSale + "',  vfeatureditem = '" + sortdata[k].vFeaturedItem + "', vsorting = '" + sortdata[k].vSorting + "', vaggregation = '" + sortdata[k].vAggregation + "', vDetailDesc = '" + sortdata[k].vDetailDesc + "', vFeatureDesc = '" + sortdata[k].vFeatureDesc + "', vLastUpdated = '" + sortdata[k].vLastUpdated + "', vShowOnSite = '" + sortdata[k].vShowOnSite + "' WHERE vItemnumber = '" + sortdata[k].vItemNumber + "' and vlocation = '800'", (error, results, fields) => {
-  		if (error) throw error;
+    connection.query("UPDATE `CousinDB`.`CCA_ITEM_DESCRIPTIONS` set vLook = '" + sortdata[k].vLook + "', vgencolor = '" + sortdata[k].vGenColor + "', vLaunchSeason = '" + sortdata[k].vLaunchSeason + "', vgenmaterial = '" + sortdata[k].vGenMaterial + "', vgenitemtype = '" + sortdata[k].vGenItemType + "',  vsizetype = '" + sortdata[k].vSizetype + "',  vmetalcolor = '" + sortdata[k].vMetalColor + "',  vdimensions = '" + sortdata[k].vDimensions + "', vonsale = '" + sortdata[k].vOnSale + "',  vfeatureditem = '" + sortdata[k].vFeaturedItem + "', vsorting = '" + sortdata[k].vSorting + "', vaggregation = '" + sortdata[k].vAggregation + "', vDetailDesc = '" + sortdata[k].vDetailDesc + "', vFeatureDesc = '" + sortdata[k].vFeatureDesc + "', vLastUpdated = '" + sortdata[k].vLastUpdated + "', vShowOnSite = '" + sortdata[k].vShowOnSite + "' WHERE vItemnumber = '" + sortdata[k].vItemNumber + "' and vlocation = '800'", (error, results, fields) => {
+      if (error) throw error;
     });
   });
   /*
- Object.keys(sortdata).forEach(function (k) {
+Object.keys(sortdata).forEach(function (k) {
   connection.query("UPDATE `CousinDB`.`SWCCSSTOK` set quantityonhand = '" + sortdata[k].quantityonhand + "', itemprice_2 = '" + sortdata[k].itemprice_2 + "', itemprice_1 = '" + sortdata[k].itemprice_1 + "' WHERE stocknumber = '" + sortdata[k].vItemNumber + "' and locationnumber = '800'", (error, results, fields) => {
     if (error) throw error;
   });
-  
+ 
 });
 */
 }
-
+ 
 //updateDescQuery();
-
+ 
 
 function getljevents() {
   sql.connect(dbconfig).then(pool =>  {
@@ -285,14 +253,14 @@ function getljevents() {
   }).then(result => {
       items = JSON.stringify(result.recordset);
       items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-
+ 
       Object.keys(items).forEach (function (k) {
         var lastChar = items[k].vEvents[items[k].vEvents.length -1];
-        items[k].vEvents =	items[k].vEvents.split(",");
+        items[k].vEvents =  items[k].vEvents.split(",");
         if (lastChar === ',')
           items[k].vEvents.pop();
-			});
-
+      });
+ 
       fs.writeFile('ljevents.js', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
@@ -357,12 +325,12 @@ function testing2() {
     // err will return any errors that occur
     // data will contain the body content from the request
     // res is the full response object, use this to get headers etc
-    
+   
     console.log(res);
     //console.log(err);
     });
 }
-
+ 
 //testing2();
 var cntr = 0;
 var idx = 0;
@@ -371,14 +339,14 @@ var itemdata = fs.readFileSync('oldevents.js', 'utf-8');
 itemdata = JSON.parse(itemdata);
 itemdata = JSON.parse(itemdata[0]);
 //console.log(itemdata);
-
+ 
 newdata = [];
 Object.keys(itemdata).forEach (function (k) {
   go_in = [];
   sku = itemdata[k].sku.toString();
   cats = JSON.stringify(itemdata[k].categories);
   go_in.push(sku, cats);
-  
+ 
   //newdata.push(go_in);
   fs.appendFile("slimoldevents.js", go_in, function(err){
     if(err) throw err;
@@ -389,27 +357,27 @@ Object.keys(itemdata).forEach (function (k) {
 //var itemdata = fs.readFileSync('prod_id.js', 'utf-8');
 //itemdata = JSON.parse(itemdata);
 //console.log( itemdata[idx].vItemNumber);
-
+ 
 
 function assignCats()
 {
   setTimeout( function() {
     WooCommerce.get("products/" + itemdata[idx].id + "", function(err, data, res){
-     
-      result = JSON.parse(res);
     
+      result = JSON.parse(res);
+   
       console.log(result.sku);
       go_in = [];
       sku = JSON.stringify(result.sku);
-    
+   
       cats = JSON.stringify(result.categories);
       go_in.push(sku, cats);
-    
+   
       fs.appendFile("oldevents.js", go_in, function(err){
         if(err) throw err;
         console.log('IT IS WRITTEN');
       });
-     
+    
       console.log(idx);
       idx++;
       cntr++;
@@ -424,50 +392,50 @@ function assignCats()
 /*
 var itemdata = fs.readFileSync('newevents.js', 'utf-8');
 itemdata = JSON.parse(itemdata);
-
+ 
 var eventdata = fs.readFileSync('prod_id.js', 'utf-8');
 eventdata = JSON.parse(eventdata);
-
+ 
 
 Object.keys(itemdata).forEach (function (k) {
   sku = itemdata[k].sku;
-
- //sku = sku.slice(0, sku.indexOf("--"));
+ 
+//sku = sku.slice(0, sku.indexOf("--"));
   Object.keys(eventdata).forEach (function (m) {
     item = eventdata[m].sku;
     eventcat = eventdata[m].id;
     if (sku === item ){
-      
+     
         itemdata[k].id = eventcat;
-    
+   
     }
   });
   console.log(itemdata[k]);
   newset.push(itemdata[k]);
 });
-
+ 
 setTimeout( function() {
-
+ 
 fs.writeFile("newevents2.js", JSON.stringify(newset), function(err){
 });
-
+ 
 }, 4000);
 */
-
+ 
 
 //var itemdata = fs.readFileSync('newevents2.js', 'utf-8');
 //itemdata = JSON.parse(itemdata);
-
+ 
 function assignNewCats()
 {
   setTimeout( function() {
      data = {categories :  itemdata[idx].categories};
      WooCommerce.put("products/" + itemdata[idx].id + "", data,  function(err, data, res){
-     
-      result = JSON.parse(res);
     
+      result = JSON.parse(res);
+   
       console.log(result.categories);
-     
+    
       console.log(idx);
       idx++;
       cntr++;
@@ -478,13 +446,13 @@ function assignNewCats()
   }, 1000);
 }
 //assignNewCats();
-
+ 
 
 //////////////////////////////////////
 /////creating the simple products/////
 //////////////////////////////////////
 function updateSimple() {
-
+ 
 }
 
 
@@ -505,13 +473,13 @@ function getImages() {
           position: 1
         },
         {
-          src: "https://cosmostylejewelry.com/CosmoImg/" + toAdd[idx] + "-3.jpg",
+         src: "https://cosmostylejewelry.com/CosmoImg/" + toAdd[idx] + "-3.jpg",
           position: 2
         }
       ]
     };
    WooCommerce.put("products?filter[sku]=" + toAdd[idx] + "--400_PROD", data, function(err, data, res) {
-    
+   
      result = JSON.parse(res);
      console.log(result);
      console.log(idx);
@@ -636,5 +604,6 @@ toAdd = ["C190550209",
 "C19394",
 "400GRG",
 "113RW"];
-
+ 
 //getImages();
+ 
