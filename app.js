@@ -84,7 +84,7 @@ app.get('/swdb800info', function (req, res) {
 const agg = "([vAggregation] <> '' OR [vAggregation] IS NOT NULL)";
 const nonAgg = "([vAggregation] IS NULL or [vAggregation] = '')";
 const cosWhere = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10 AND ";
-const cosWherePrograms = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'Programs' or dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'assortments') ";
+const cosWherePrograms = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'Programs' or dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'assortments' dbo.CCA_ITEM_DESCRIPTIONS.vGenType = 'displays') ";
 
 function getProducts() {
   sql.connect(dbconfig).then(pool =>  {
@@ -158,9 +158,6 @@ function getProducts800() {
   }).then(result => {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-		//	Object.keys(items).forEach (function (k) {
-    //    items[k].imagefilename = "https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + ".JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-2.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-3.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-4.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-5.JPG";
-		//	});
       fs.writeFile('items800.js', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
