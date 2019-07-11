@@ -95,7 +95,7 @@ function getProducts() {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
 			Object.keys(items).forEach (function (k) {
-        items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg";
+        items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg";
         var lookAttr = items[k].vLook.split(",");
         items[k].lookAttr = lookAttr[0];
 
@@ -105,7 +105,7 @@ function getProducts() {
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
 			});
-      fs.writeFile('items900.js', JSON.stringify(items), 'utf8', (error) => {
+      fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
         
@@ -113,23 +113,20 @@ function getProducts() {
         const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vSpecificColor", "vGenColor", "vGenMaterial", "vGenItemType", "vShape", "vSizeType", "vMetalColor", "vMetalType", "vDimensions", "vPcCounts", "vKeywords", "vOnSale", "vFeaturedItem", "vSorting", "vAggregation", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('items900.js', { encoding: 'utf8' });
-        const output = fs.createWriteStream('items900.csv', { encoding: 'utf8' });
+        const input = fs.createReadStream('900/items900.json', { encoding: 'utf8' });
+        const output = fs.createWriteStream('900/items900.csv', { encoding: 'utf8' });
         const json2csv = new Json2csvTransform(opts, transformOpts);
         const processor = input.pipe(json2csv).pipe(output);
         json2csv
-          .on('header', header => console.log(header))
-          .on('line', line => console.log(line))
+        //  .on('header', header => console.log(header))
+        //  .on('line', line => console.log(line))
           .on('error', err => console.log(err));
         console.log("JSON has been created.");
       });
   }).then(() => {
-    
-    
     var c = new Client();
     c.on('ready', function() {
-     
-      c.put('items900.csv', 'new-comp.csv', function(err) {
+      c.put('900/items900.csv', 'items900-remote.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
@@ -154,11 +151,11 @@ function getProducts() {
 function getProducts800() {
   sql.connect(dbconfig).then(pool =>  {
     return pool.request()
-    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vKeywords, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 10 ORDER BY vAggregation");
+    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vKeywords, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5 ORDER BY vAggregation");
   }).then(result => {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-      fs.writeFile('items800.js', JSON.stringify(items), 'utf8', (error) => {
+      fs.writeFile('800/items800.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
         
@@ -166,8 +163,8 @@ function getProducts800() {
         const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vKeywords", "vSorting", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('items800.js', { encoding: 'utf8' });
-        const output = fs.createWriteStream('items800.csv', { encoding: 'utf8' });
+        const input = fs.createReadStream('800/items800.json', { encoding: 'utf8' });
+        const output = fs.createWriteStream('800/items800.csv', { encoding: 'utf8' });
         const json2csv = new Json2csvTransform(opts, transformOpts);
         const processor = input.pipe(json2csv).pipe(output);
         json2csv
@@ -177,10 +174,10 @@ function getProducts800() {
         console.log("JSON has been created.");
       });
   }).then(() => {
-    var Client = require('ftp');
+  //  var Client = require('ftp');
     var c = new Client();
     c.on('ready', function() {
-      c.put('items800.csv', 'items800-remote.csv', function(err) {
+      c.put('800/items800.csv', 'items800-remote.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
@@ -199,6 +196,8 @@ function getProducts800() {
   });
 }
 
+
+
 function getProducts400() {
   sql.connect(dbconfig).then(pool =>  {
     return pool.request()
@@ -209,7 +208,7 @@ function getProducts400() {
 			Object.keys(items).forEach (function (k) {
         items[k].imagefilename = "https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + ".JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-2.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-3.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-4.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-5.JPG";
 			});
-      fs.writeFile('items400.js', JSON.stringify(items), 'utf8', (error) => {
+      fs.writeFile('400/items400.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
         
@@ -217,8 +216,8 @@ function getProducts400() {
         const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vMetalType", "vKeywords", "vOnSale", "vFeaturedItem", "vSorting", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2", "imagefilename"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('items400.js', { encoding: 'utf8' });
-        const output = fs.createWriteStream('items400.csv', { encoding: 'utf8' });
+        const input = fs.createReadStream('400/items400.json', { encoding: 'utf8' });
+        const output = fs.createWriteStream('400/items400.csv', { encoding: 'utf8' });
         const json2csv = new Json2csvTransform(opts, transformOpts);
         const processor = input.pipe(json2csv).pipe(output);
         json2csv
@@ -228,10 +227,10 @@ function getProducts400() {
         console.log("JSON has been created.");
       });
   }).then(() => {
-    var Client = require('ftp');
+   // var Client = require('ftp');
     var c = new Client();
     c.on('ready', function() {
-      c.put('items400.csv', 'whoa.csv', function(err) {
+      c.put('./400/items400.csv', 'items400-remote.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
