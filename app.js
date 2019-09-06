@@ -15,6 +15,7 @@ const bodyParser = require('body-parser');
 const WooCommerceAPI = require('woocommerce-api');
 const cousindbconfig = require('./config/CousinDB');
 
+
 const app = express();
 const WooCommerce = new WooCommerceAPI( wooProps );
 
@@ -28,7 +29,7 @@ app.listen(process.env.PORT || 3000, () => {
   console.log('The application is running the product sync.');
 });
 
-//require('./routes/routes.js')(app);
+//require('./routes')(app);
 
 app.get('/login', function(req, res){
   res.render('login', {
@@ -37,27 +38,47 @@ app.get('/login', function(req, res){
 });
 
 app.get('/', (req, res) => {
-res.render('index-2');
+  res.render('index-2');
 });
 
 app.get('/about', (req, res) => {
-res.render('card', {prompt: "Guys"});
+  res.render('card', {prompt: "Guys"});
 });
 
 app.get('/hello', (req, res) => {
-res.render('hello');
+  res.render('hello');
 });
 
 app.post('/hello', (req, res) => {
-res.render('hello', { name: req.body.username });
+  res.render('hello', { name: req.body.username });
 });
 
-app.get('/save', function (req, res) {
+app.get('/save-old', function (req, res) {
   fs.writeFile('log.txt', 'This is my text', function (err) {
     if (err) throw err;
     console.log('Replaced!');
     res.send('Replaced!');
   });
+});
+
+app.use(express.json());
+var jsonParser = bodyParser.json(); 
+var urlencodedParser = bodyParser.urlencoded({ extended: true });
+app.post('/save', urlencodedParser, function (req, res) {
+  console.log(req.body);
+  var jsonthing = req.body;
+
+  fs.writeFile('log.json', JSON.stringify(jsonthing), function (err) {
+    if (err) throw err;
+    console.log('Replaced!');
+    res.send('Replaced!');
+  });
+});
+
+app.get('/loadorders', function (req, res) {
+  var pendingOrders = fs.readFileSync('log.json', 'utf-8');
+  pendingOrders = JSON.parse(pendingOrders);
+  res.send(pendingOrders);
 });
 
 app.get('/getprods', function (req, res) {
@@ -78,19 +99,36 @@ app.get('/swdb800info', function (req, res) {
   getProducts800();
 });
 
+app.get('/customerData/:customerName', function (req, res) {
+  var cust = req.params.customerName;
+  console.log(cust);
+
+  console.log(usernameToNumber(cust));
+  //console.log(data);
+
+  setTimeout(function(){ console.log(usernameToNumber(cust));}, 2000);
+  //console.log(usernameToNumber(cust));
+  //res.send(data);
+});
+
+function numbertest() {
+  var numbertester = 12;
+  return numbertester;
+}
 
 
-//Building the Cosmo Queries
-const agg = "([vAggregation] <> '' OR [vAggregation] IS NOT NULL)";
-const nonAgg = "([vAggregation] IS NULL or [vAggregation] = '')";
-const cosWhere = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10 AND ";
-const cosWherePrograms = "WHERE dbo.CCA_ITEM_DESCRIPTIONS.vLocation = '400' and dbo.CCA_ITEM_DESCRIPTIONS.vShowOnSite = 'Y' and (dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'Programs' or dbo.CCA_ITEM_DESCRIPTIONS.vGenItemType = 'assortments' dbo.CCA_ITEM_DESCRIPTIONS.vGenType = 'displays') ";
+//Building the CousinDIY Queries
+var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizetype, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
+var diyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
+var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
+var diyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%')";
+
 
 function getProducts() {
   sql.connect(dbconfig).then(pool =>  {
     //const request = new sql.Request();
     return pool.request()
-    .query("SELECT vItemNumber AS vItemNumber, vLocation AS vLocation, vDescription AS vDescription, vShortDesc AS vShortDesc, vLook AS vLook, vGenColor AS vGenColor, vGenMaterial AS vGenMaterial, vGenItemType AS vGenItemType, vSizeType AS vSizetype, vKeywords AS vKeywords, vSorting AS vSorting, vAggregation AS vAggregation, itemprice_1 AS itemprice_1, itemprice_2 AS itemprice_2, quantityonhand AS quantityonhand FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) OR (vLocation = '900' and vShowOnSite = 'Y' and vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%')");
+    .query(diyColumns + diyFrom + diyWhere1 + diyWhere2);
   }).then(result => {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
@@ -149,9 +187,9 @@ function getProducts() {
 
 
 function getProducts800() {
-  sql.connect(dbconfig).then(pool =>  {
+  sql.connect(dbconfig).then(pool => {
   return pool.request()
-    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2, vEvents FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5) OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%') ORDER BY vAggregation");
+    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2, vEvents, vOnSale FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5) OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%') ORDER BY vAggregation");
   }).then(result => {
       items = JSON.stringify(result.recordset);
       items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
@@ -159,13 +197,16 @@ function getProducts800() {
         if (items[k].vAggregation !== null && items[k].vAggregation !== "") {
           items[k].vAggregation = items[k].vAggregation + "-agg";		
         }
+        if (items[k].vOnSale == 'Y') {
+          items[k].vGenItemType = items[k].vGenItemType + ", Specials";
+        }
       });
       fs.writeFile('800/items800.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
         
         const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2", "vEvents"];
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vAggregation", "vKeywords", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2", "vEvents"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
         const input = fs.createReadStream('800/items800.json', { encoding: 'utf8' });
@@ -524,9 +565,44 @@ function getImages() {
   }, 1000);
 }
 
+var custdata;
+//var account;
+//var accountNumber;
+function usernameToNumber (username) {
+  sql.connect(dbconfig).then(pool =>  {
+    //const request = new sql.Request();
+    return pool.request()
+    .query("SELECT * FROM SWCCRCUST Left JOIN SWCCNLRQR ON RTRIM(LTRIM(dbo.SWCCRCUST.customernumber)) = RTRIM(LTRIM(dbo.SWCCNLRQR.relatedanytype)) WHERE requestorid = '" + username +"'" );
+  }).then( result => {
+    userdata = JSON.stringify(result.recordset);
+    userdata = JSON.parse(userdata.replace(/"\s+|\s+"/g,'"'));
+    //console.log(userdata);
+    number = 12;
+    sql.close();
+    return number;
+  });
+}
 
+function numbertoAccount (number) {
+  sql.connect(dbconfig).then(pool =>  {
+    //const request = new sql.Request();
+    return pool.request()
+    .query("select * from [dbo].[SWCCRCUST] where RTRIM(LTRIM(dbo.SWCCRCUST.customernumber)) = '" + number +"'" );
+  }).then( result => {
+    account = JSON.stringify(result.recordset);
+    account = JSON.parse(account.replace(/"\s+|\s+"/g,'"'));
+    sql.close();
+    //console.log(account);
+    return account;
+  });
+}
 
+function getCustomerDetails (custdata) {
 
+}
+
+//usernameToNumber("guest900");
+//numbertoAccount('101224');
 toAdd = ["C190550209",
 "C190550109",
 "C190552607",

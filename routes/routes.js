@@ -1,11 +1,11 @@
 module.exports = function(app){
 
 	app.get('/login', function(req, res){
-			res.render('login', {
-					title: 'Express Login'
-			});
+		res.render('login', {
+			title: 'Express Login'
+		});
 	});
-
+	
 	app.get('/', (req, res) => {
 		res.render('index-2');
 	});
@@ -33,12 +33,18 @@ module.exports = function(app){
 	app.get('/getprods', function (req, res) {
 		getProducts();
 	});
+	app.get('/getprods400', function (req, res) {
+		getProducts400();
+	});
+	app.get('/getprods800', function (req, res) {
+		getProducts800();
+	});
 	
 	app.get('/getljevents', function (req, res) {
 		getljevents();
 	});
 	
 	app.get('/swdb800info', function (req, res) {
-		getProducts800() ;
+		getProducts800();
 	});
 };
