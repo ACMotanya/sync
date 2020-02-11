@@ -15,9 +15,8 @@ const bodyParser = require('body-parser');
 const WooCommerceAPI = require('woocommerce-api');
 const cousindbconfig = require('./config/CousinDB');
 
-
 const app = express();
-const WooCommerce = new WooCommerceAPI( wooProps );
+//const WooCommerce = new WooCommerceAPI( wooProps );
 
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(cors());
@@ -35,7 +34,7 @@ app.listen(process.env.PORT || 3000, () => {
 app.get('/', (req, res) => {
   res.render('index-2');
 });
-
+/*
 app.get('/about', (req, res) => {
   res.render('card', {prompt: "Guys"});
 });
@@ -75,7 +74,7 @@ app.get('/loadorders', function (req, res) {
   pendingOrders = JSON.parse(pendingOrders);
   res.send(pendingOrders);
 });
-
+*/
 app.get('/getprods', function (req, res) {
   getProducts();
 });
@@ -86,7 +85,7 @@ app.get('/getprods800', function (req, res) {
   getProducts800();
 });
 
-
+/*
 app.get('/customerData/:customerName', function (req, res) {
   var cust = req.params.customerName;
   console.log(cust);
@@ -98,6 +97,7 @@ app.get('/customerData/:customerName', function (req, res) {
   //console.log(usernameToNumber(cust));
   //res.send(data);
 });
+*/
 
 
 
@@ -106,7 +106,8 @@ var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook
 var diyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
 var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
 var diyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%' OR vItemNumber = '34719038')";
-var missPic = "";
+var missPic = `where vlocation = '900' and
+vitemnumber in ()`;
 
 function getProducts() {
   sql.connect(dbconfig).then(pool =>  {
@@ -126,6 +127,8 @@ function getProducts() {
 
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
+
+        items[k].vLook = items[k].vLook + ", Sale";
 			});
       fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
@@ -140,8 +143,8 @@ function getProducts() {
         const json2csv = new Json2csvTransform(opts, transformOpts);
         const processor = input.pipe(json2csv).pipe(output);
         json2csv
-        //  .on('header', header => console.log(header))
-        //  .on('line', line => console.log(line))
+          .on('header', header => console.log(header))
+          //.on('line', line => console.log(line))
           .on('error', err => console.log(err));
         console.log("JSON has been created.");
       });
@@ -177,7 +180,7 @@ var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook,
 var ljFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber ";
 var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5) ";
 var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%' OR vLaunchSeason LIKE '%SS20 Catalog%') ORDER BY vAggregation";
-var missPic = ``;
+var missPiJKKJBc = ``;
 
 function getProducts800() {
   sql.connect(dbconfig).then(pool => {
@@ -202,11 +205,7 @@ function getProducts800() {
 
         var funcAttr = items[k].vGenItemType.split(",");
         items[k].funcAttr = funcAttr[0];
-        /* 
-        if (cat.indexOf(items[k].vItemNumber) !== -1) {
-          items[k].vEvents = items[k].vEvents + "gemstones,";
-        }
-        */
+        
       });
       fs.writeFile('800/items800.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
