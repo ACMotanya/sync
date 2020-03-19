@@ -128,7 +128,7 @@ function getProducts() {
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
 
-        items[k].vLook = items[k].vLook + ", Sale";
+        //items[k].vLook = items[k].vLook + ", Sale";
 			});
       fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
@@ -182,6 +182,7 @@ var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonh
 var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%' OR vLaunchSeason LIKE '%SS20 Catalog%') ORDER BY vAggregation";
 var missPiJKKJBc = ``;
 
+
 function getProducts800() {
   sql.connect(dbconfig).then(pool => {
   return pool.request()
@@ -200,8 +201,10 @@ function getProducts800() {
           items[k].vEvents = items[k].vEvents + "New,";
         }
         
-        var lookAttr = items[k].vLook.split(",");
-        items[k].lookAttr = lookAttr[0];
+        if(Array.isArray(items[k].vLook)) {
+          var lookAttr = items[k].vLook.split(",");
+          items[k].lookAttr = lookAttr[0];
+        }
 
         var funcAttr = items[k].vGenItemType.split(",");
         items[k].funcAttr = funcAttr[0];
@@ -212,7 +215,7 @@ function getProducts800() {
           console.log(error);
         
         const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vAggregation", "vKeywords", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2", "vEvents", "lookAttr", "funcAttr"];
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vKeywords", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "vFeaturedItem", "itemprice_1", "itemprice_2", "vEvents", "vOnSale", "lookAttr", "funcAttr"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
         const input = fs.createReadStream('800/items800.json', { encoding: 'utf8' });
@@ -302,3 +305,74 @@ function getProducts400() {
 }
 
 
+
+//Building the new item CousinDIY Queries
+var newDiyColumns = "SELECT TOP 40 vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizetype, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
+var newDiyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
+var newDiyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
+var newDiyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%' OR vItemNumber = '34719038') ORDER BY vDateAdded DESC";
+
+function getNewProducts() {
+  sql.connect(dbconfig).then(pool =>  {
+    //const request = new sql.Request();
+    return pool.request() 
+    .query(newDiyColumns + newDiyFrom + newDiyWhere1 + newDiyWhere2);
+  }).then(result => {
+      items = JSON.stringify(result.recordset);
+			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
+			Object.keys(items).forEach (function (k) {
+        items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg";
+        var lookAttr = items[k].vLook.split(",");
+        items[k].lookAttr = lookAttr[0];
+
+        var funcAttr = items[k].vGenItemType.split(",");
+        items[k].funcAttr = funcAttr[0];
+
+        var materialAttr = items[k].vGenMaterial.split(",");
+        items[k].materialAttr = materialAttr[0];
+
+        items[k].vLook = items[k].vLook + ", New";
+			});
+      fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
+        if (error)
+          console.log(error);
+        
+        const Json2csvTransform = require('json2csv').Transform;
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenMaterial", "vGenItemType", "vSizeType", "vKeywords", "vSorting", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
+        const opts = { fields };
+        const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
+        const input = fs.createReadStream('900/items900.json', { encoding: 'utf8' });
+        const output = fs.createWriteStream('900/items900.csv', { encoding: 'utf8' });
+        const json2csv = new Json2csvTransform(opts, transformOpts);
+        const processor = input.pipe(json2csv).pipe(output);
+        json2csv
+          .on('header', header => console.log(header))
+          //.on('line', line => console.log(line))
+          .on('error', err => console.log(err));
+        console.log("JSON has been created.");
+      });
+  }).then(() => {
+    var c = new Client();
+    c.on('ready', function() {
+      c.put('900/items900.csv', 'items900-remote.csv', function(err) {
+        if (err) throw err;
+        c.end();
+        console.log("CSV has been created.");
+      });
+    });
+    c.connect(cProps900);
+    
+  }).then(() => {
+    sql.close();
+  }).catch(err => {
+    // ... error checks
+    console.log(err);
+  });
+  sql.on('error', err => {
+    // ... error handler
+    console.log(err);
+  });
+}
+
+
+//getNewProducts();
