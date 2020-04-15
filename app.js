@@ -107,7 +107,8 @@ var diyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.
 var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
 var diyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%' OR vItemNumber = '34719038')";
 var missPic = `where vlocation = '900' and
-vitemnumber in ()`;
+vitemnumber in (
+)`;
 
 function getProducts() {
   sql.connect(dbconfig).then(pool =>  {
@@ -128,7 +129,7 @@ function getProducts() {
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
 
-        //items[k].vLook = items[k].vLook + ", Sale";
+   //     items[k].vLook = items[k].vLook + ", Sale";
 			});
       fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
@@ -152,7 +153,10 @@ function getProducts() {
     var c = new Client();
     c.on('ready', function() {
       c.put('900/items900.csv', 'items900-remote.csv', function(err) {
-        if (err) throw err;
+        c.put('800/items800.json', 'items800-remote.json', function(err) {
+          if (err) throw err;
+          c.end();
+        });
         c.end();
         console.log("CSV has been created.");
       });
@@ -232,9 +236,10 @@ function getProducts800() {
     var c = new Client();
     c.on('ready', function() {
       c.put('800/items800.csv', 'items800-remote.csv', function(err) {
-        if (err) throw err;
-        c.end();
-        
+        c.put('800/items800.json', 'items800-remote.json', function(err) {
+          if (err) throw err;
+          c.end();
+        });
       });
     });
     c.connect(cProps800);
