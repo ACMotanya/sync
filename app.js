@@ -153,7 +153,7 @@ function getProducts() {
     var c = new Client();
     c.on('ready', function() {
       c.put('900/items900.csv', 'items900-remote.csv', function(err) {
-        c.put('800/items800.json', 'items800-remote.json', function(err) {
+        c.put('900/items900.json', 'items900-remote.json', function(err) {
           if (err) throw err;
           c.end();
         });
@@ -239,13 +239,14 @@ function getProducts800() {
         c.put('800/items800.json', 'items800-remote.json', function(err) {
           if (err) throw err;
           c.end();
+          console.log("CSV has been created.");
         });
       });
     });
     c.connect(cProps800);
   }).then(() => {
     sql.close();
-    console.log("CSV has been created.");
+    
   }).catch(err => {
     // ... error checks
     console.log(err);
