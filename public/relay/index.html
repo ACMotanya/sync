@@ -219,12 +219,11 @@ var tbl;
 function addNewOrder(){
 	var wooOrder = $("#searchField").val();
 	var location = $("#location").val();
-	$.get("http://srv-sw:8082/ace/woo-order-details.php/?order=" + wooOrder + "&location="+ location +"", function (data) {
+	$.get("https://netlink.laurajanelle.com:444/ace/woo-order-details.php/?order=" + wooOrder + "&location="+ location +"", function (data) {
  		orderData = JSON.parse(data);
-		$.get("http://srv-sw:8082/ace/woo-order-details.php/?userid=" + orderData["User ID"] + "&location="+ location +"", function (data) {
-		
+		$.get("https://netlink.laurajanelle.com:444/ace/woo-order-details.php/?userid=" + orderData["User ID"] + "&location="+ location +"", function (data) {
 			userData = JSON.parse(data);
-			$.get("http://srv-sw:8082/ace/customerdetails.php/?customer=" + userData["user_login"] + "", function (data) {
+			$.get("https://netlink.laurajanelle.com:444/ace/customerdetails.php/?customer=" + userData["user_login"] + "", function (data) {
 				custData = JSON.parse(data);
 				var obj = Object.assign(orderData, userData, custData);
 				const newOrderTr = `
@@ -274,14 +273,15 @@ function html2json() {
 
 function saveData(){
 	tbl = html2json();
-	$.post("http://localhost:3000/save/", {tbl});
+	$.post("https://relay.localtunnel.me/save/", {tbl});
 	//alert("Rows habve be updated");
 }
 
 
  var importOrders;
 $(document).ready(function() {
-	$.get("http://localhost:3000/loadorders", function (data) {
+	$.get("https://relay.localtunnel.me/loadorders", function (data) {
+		   
 		console.log(data);
 		importOrders = data;
 		append_json(importOrders);
