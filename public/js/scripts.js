@@ -20,7 +20,7 @@ function ljevents()
 
 function saveSWDBinfo()
 {
-	$.get("http://localhost:3000/swdb800info/");
+	$.get("http://localhost:3000/getprods800/");
 }
 
 function customerData(username)

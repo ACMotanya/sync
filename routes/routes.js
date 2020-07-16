@@ -1,4 +1,4 @@
-module.exports = function(app){
+module.exports = function(app) {
 
 	app.get('/login', function(req, res){
 		res.render('login', {
@@ -6,9 +6,7 @@ module.exports = function(app){
 		});
 	});
 	
-	app.get('/', (req, res) => {
-		res.render('index-2');
-	});
+
 	
 	app.get('/about', (req, res) => {
 		res.render('card', {prompt: "Guys"});
