@@ -152,7 +152,7 @@ function getProducts() {
   }).then(() => {
     var c = new Client();
     c.on('ready', function() {
-      c.put('900/items900.csv', 'items900-remote.csv', function(err) {
+      c.put('900/items900.csv', 'item900-remote.csv', function(err) {
         c.put('900/items900.json', 'items900-remote.json', function(err) {
           if (err) throw err;
           c.end();
@@ -201,7 +201,10 @@ function getProducts800() {
           items[k].vAggregation = " ";
         }
         if (items[k].vOnSale == 'Y') {
-          items[k].vEvents = items[k].vEvents + "Specials,";
+          items[k].vLook = " ";
+          items[k].vGenItemType = " ";
+
+          items[k].vEvents = "Specials";
         }
       //  if (items[k].vFeaturedItem == 'Y') {
        //   items[k].vEvents = items[k].vEvents + "New,";
