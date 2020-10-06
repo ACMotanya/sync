@@ -179,7 +179,7 @@ function getProducts() {
 
 
 
-//Building the CousinDIY Queries
+//Building the LJ Queries
 var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, vFeaturedItem, itemprice_1, itemprice_2, vEvents, vOnSale ";
 var ljFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber ";
 var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5) ";
@@ -195,18 +195,25 @@ function getProducts800() {
       items = JSON.stringify(result.recordset);
       items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
       Object.keys(items).forEach (function (k) {
+
+        items[k].vEvents = " ";
+
+        //Code for aggregation
         if (items[k].vSizeType !== null && items[k].vSizeType !== "") {
           items[k].vAggregation = items[k].vAggregation + "-agg";		
         } else  {
           items[k].vAggregation = " ";
         }
+
+        //Code for specials 
         if (items[k].vOnSale == 'Y') {
           items[k].vLook = " ";
-          items[k].vGenItemType = " ";
+          items[k].vGenItemType = items[k].vGenItemType + "-SP";
 
           items[k].vEvents = "Specials";
         }
-      //  if (items[k].vFeaturedItem == 'Y') {
+
+       //  if (items[k].vFeaturedItem == 'Y') {
        //   items[k].vEvents = items[k].vEvents + "New,";
        // }
         
