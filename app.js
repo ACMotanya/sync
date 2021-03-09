@@ -119,7 +119,7 @@ function getProducts() {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
 			Object.keys(items).forEach (function (k) {
-        items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg";
+        items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-6.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-7.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-8.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-9.jpg";
         var lookAttr = items[k].vLook.split(",");
         items[k].lookAttr = lookAttr[0];
 
@@ -129,7 +129,7 @@ function getProducts() {
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
 
-   //     items[k].vLook = items[k].vLook + ", Sale";
+        items[k].vLook = items[k].vLook + ", Sale";
 			});
       fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
@@ -180,11 +180,13 @@ function getProducts() {
 
 
 //Building the LJ Queries
-var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, vFeaturedItem, itemprice_1, itemprice_2, vEvents, vOnSale ";
+var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, vFeaturedItem, itemprice_1, itemprice_2, vEvents, vOnSale, orderynpdxam ";
 var ljFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber ";
-var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5) ";
-var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%' OR vLaunchSeason LIKE '%SS20 Catalog%') ORDER BY vAggregation";
-var missPiJKKJBc = ``;
+var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5 and itemprice_2 <> '0') ";
+var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%') ORDER BY vSorting ASC";
+var missPiJKKJBc = `where vlocation = '800' and
+vitemnumber in (
+)`;
 
 
 function getProducts800() {
@@ -211,11 +213,20 @@ function getProducts800() {
           items[k].vGenItemType = items[k].vGenItemType + "-SP";
 
           items[k].vEvents = "Specials";
+
+          items[k].salePriceWhol = items[k].itemprice_1;
+          items[k].salePriceRetail = items[k].itemprice_2;
+
+          items[k].itemprice_1 = items[k].itemprice_1 + 15;
+          items[k].itemprice_2 = items[k].itemprice_2 + 15;
+        } else {
+          items[k].salePriceWhol = " ";
+          items[k].salePriceRetail = " ";
         }
 
-       //  if (items[k].vFeaturedItem == 'Y') {
-       //   items[k].vEvents = items[k].vEvents + "New,";
-       // }
+        if (items[k].vFeaturedItem == 'Y') {
+          items[k].vEvents = items[k].vEvents + "New,";
+        }
         
         if(Array.isArray(items[k].vLook)) {
           var lookAttr = items[k].vLook.split(",");
@@ -231,7 +242,7 @@ function getProducts800() {
           console.log(error);
         
         const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vKeywords", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "vFeaturedItem", "itemprice_1", "itemprice_2", "vEvents", "vOnSale", "lookAttr", "funcAttr"];
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vKeywords", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "vFeaturedItem", "itemprice_1", "itemprice_2", "vEvents", "vOnSale", "salePriceWhol", "salePriceRetail", "lookAttr", "funcAttr"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
         const input = fs.createReadStream('800/items800.json', { encoding: 'utf8' });
@@ -393,4 +404,4 @@ function getNewProducts() {
 }
 
 
-//getNewProducts();
+// getNewProducts();
