@@ -102,7 +102,7 @@ app.get('/customerData/:customerName', function (req, res) {
 
 
 //Building the CousinDIY Queries
-var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizetype, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
+var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizeType, vShape, vDimensions, vPcCounts, vKeywords, vAggregation, vSorting, itemprice_1, itemprice_2, quantityonhand ";
 var diyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
 var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
 var diyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and (vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%' OR vItemNumber = '34719038'))";
@@ -119,7 +119,10 @@ function getProducts() {
       items = JSON.stringify(result.recordset);
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
 			Object.keys(items).forEach (function (k) {
+
+        
         items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-6.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-7.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-8.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-9.jpg";
+        
         var lookAttr = items[k].vLook.split(",");
         items[k].lookAttr = lookAttr[0];
 
@@ -129,14 +132,14 @@ function getProducts() {
         var materialAttr = items[k].vGenMaterial.split(",");
         items[k].materialAttr = materialAttr[0];
 
-        items[k].vLook = items[k].vLook + ", Sale";
+        // items[k].vLook = items[k].vLook + ", Sale";
 			});
       fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
         
         const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenMaterial", "vGenItemType", "vSizeType", "vKeywords", "vSorting", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenMaterial", "vGenItemType", "vSizeType", "vShape", "vDimensions", "vPcCounts", "vKeywords", "vAggregation", "vSorting", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
         const input = fs.createReadStream('900/items900.json', { encoding: 'utf8' });
@@ -217,8 +220,8 @@ function getProducts800() {
           items[k].salePriceWhol = items[k].itemprice_1;
           items[k].salePriceRetail = items[k].itemprice_2;
 
-          items[k].itemprice_1 = items[k].itemprice_1 + 15;
-          items[k].itemprice_2 = items[k].itemprice_2 + 15;
+          items[k].itemprice_1 = (items[k].itemprice_1 + 15.00).toFixed(2);
+          items[k].itemprice_2 = (items[k].itemprice_2 + 15.00).toFixed(2);
         } else {
           items[k].salePriceWhol = " ";
           items[k].salePriceRetail = " ";
