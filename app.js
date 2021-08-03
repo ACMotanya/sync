@@ -120,7 +120,6 @@ function getProducts() {
 			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
 			Object.keys(items).forEach (function (k) {
 
-        
         items[k].imagefilename = "https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + ".jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-2.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-3.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-4.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-5.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-6.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-7.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-8.jpg, https://www.cousindiy.com/diyimages/" + items[k].vItemNumber + "-9.jpg";
         
         var lookAttr = items[k].vLook.split(",");
@@ -156,10 +155,7 @@ function getProducts() {
     var c = new Client();
     c.on('ready', function() {
       c.put('900/items900.csv', 'item900-remote.csv', function(err) {
-        c.put('900/items900.json', 'items900-remote.json', function(err) {
-          if (err) throw err;
-          c.end();
-        });
+        if (err) throw err;
         c.end();
         console.log("CSV has been created.");
       });
@@ -262,11 +258,9 @@ function getProducts800() {
     var c = new Client();
     c.on('ready', function() {
       c.put('800/items800.csv', 'items800-remote.csv', function(err) {
-        c.put('800/items800.json', 'items800-remote.json', function(err) {
-          if (err) throw err;
-          c.end();
-          console.log("CSV has been created.");
-        });
+        if (err) throw err;
+        c.end();
+        console.log("CSV has been created.");
       });
     });
     c.connect(cProps800);
