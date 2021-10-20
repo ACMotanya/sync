@@ -23,6 +23,11 @@ function saveSWDBinfo()
 	$.get("http://localhost:3000/getprods800/");
 }
 
+function newDiyProdSync()
+{
+	$.get("http://localhost:3000/getNewProducts/");
+}
+
 function customerData(username)
 {
 	$.get("http://srv-sw:8082/ace/customerdetails.php/?customer=" + username +"", function (data) {

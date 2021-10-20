@@ -84,7 +84,9 @@ app.get('/getprods400', function (req, res) {
 app.get('/getprods800', function (req, res) {
   getProducts800();
 });
-
+app.get('/getNewProducts', function (req,res) {
+  getNewProducts();
+});
 /*
 app.get('/customerData/:customerName', function (req, res) {
   var cust = req.params.customerName;
@@ -102,7 +104,7 @@ app.get('/customerData/:customerName', function (req, res) {
 
 
 //Building the CousinDIY Queries
-var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizeType, vShape, vDimensions, vPcCounts, vKeywords, vAggregation, vSorting, itemprice_1, itemprice_2, quantityonhand ";
+var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizeType, vShape, vDimensions, vPcCounts, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
 var diyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
 var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
 var diyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and (vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%' OR vItemNumber = '34719038'))";
@@ -138,7 +140,7 @@ function getProducts() {
           console.log(error);
         
         const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenMaterial", "vGenItemType", "vSizeType", "vShape", "vDimensions", "vPcCounts", "vKeywords", "vAggregation", "vSorting", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenMaterial", "vGenItemType", "vSizeType", "vShape", "vDimensions", "vPcCounts", "vKeywords", "vSorting", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
         const input = fs.createReadStream('900/items900.json', { encoding: 'utf8' });
@@ -279,59 +281,6 @@ function getProducts800() {
 
 
 
-function getProducts400() {
-  sql.connect(dbconfig).then(pool =>  {
-    return pool.request()
-    .query("SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vMetalType, vKeywords, vOnSale, vFeaturedItem, vSorting, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, itemprice_1, itemprice_2 FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber WHERE vLocation = '400' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 10 ORDER BY vAggregation");
-  }).then(result => {
-      items = JSON.stringify(result.recordset);
-			items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
-			Object.keys(items).forEach (function (k) {
-        items[k].imagefilename = "https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + ".JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-2.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-3.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-4.JPG, https://www.cosmostylejewelry.com/CosmoImg/" + items[k].vItemNumber + "-5.JPG";
-			});
-      fs.writeFile('400/items400.json', JSON.stringify(items), 'utf8', (error) => {
-        if (error)
-          console.log(error);
-        
-        const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vMetalType", "vKeywords", "vOnSale", "vFeaturedItem", "vSorting", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "itemprice_1", "itemprice_2", "imagefilename"];
-        const opts = { fields };
-        const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('400/items400.json', { encoding: 'utf8' });
-        const output = fs.createWriteStream('400/items400.csv', { encoding: 'utf8' });
-        const json2csv = new Json2csvTransform(opts, transformOpts);
-        const processor = input.pipe(json2csv).pipe(output);
-        json2csv
-        //  .on('header', header => console.log(header))
-        //  .on('line', line => console.log(line))
-          .on('error', err => console.log(err));
-        console.log("JSON has been created.");
-      });
-  }).then(() => {
-   // var Client = require('ftp');
-    var c = new Client();
-    c.on('ready', function() {
-      c.put('./400/items400.csv', 'items400-remote.csv', function(err) {
-        if (err) throw err;
-        c.end();
-        console.log("CSV has been created.");
-      });
-    });
-    c.connect(cProps400);
-  }).then(() => {
-    sql.close();
-  }).catch(err => {
-    // ... error checks
-    console.log(err);
-  });
-  sql.on('error', err => {
-    // ... error handler
-    console.log(err);
-  });
-}
-
-
-
 //Building the new item CousinDIY Queries
 var newDiyColumns = "SELECT TOP 40 vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizetype, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
 var newDiyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
@@ -359,7 +308,7 @@ function getNewProducts() {
 
         items[k].vLook = items[k].vLook + ", New";
 			});
-      fs.writeFile('900/items900.json', JSON.stringify(items), 'utf8', (error) => {
+      fs.writeFile('900/item900.json', JSON.stringify(items), 'utf8', (error) => {
         if (error)
           console.log(error);
         
@@ -367,8 +316,8 @@ function getNewProducts() {
         const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenMaterial", "vGenItemType", "vSizeType", "vKeywords", "vSorting", "itemprice_1", "itemprice_2", "quantityonhand", "imagefilename", "lookAttr", "funcAttr", "materialAttr"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
-        const input = fs.createReadStream('900/items900.json', { encoding: 'utf8' });
-        const output = fs.createWriteStream('900/items900.csv', { encoding: 'utf8' });
+        const input = fs.createReadStream('900/item900.json', { encoding: 'utf8' });
+        const output = fs.createWriteStream('900/item900.csv', { encoding: 'utf8' });
         const json2csv = new Json2csvTransform(opts, transformOpts);
         const processor = input.pipe(json2csv).pipe(output);
         json2csv
@@ -380,7 +329,7 @@ function getNewProducts() {
   }).then(() => {
     var c = new Client();
     c.on('ready', function() {
-      c.put('900/items900.csv', 'items900-remote.csv', function(err) {
+      c.put('900/item900.csv', 'item900-remote.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
@@ -399,6 +348,3 @@ function getNewProducts() {
     console.log(err);
   });
 }
-
-
-// getNewProducts();
