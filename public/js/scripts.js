@@ -3,10 +3,6 @@ function startSync()
 	$.get("http://localhost:3000/getprods/");
 }
 
-function startSync400()
-{
-	$.get("http://localhost:3000/getprods400/");
-}
 
 function testing()
 {
@@ -51,8 +47,6 @@ function customerData(username)
 					}
 					
 					$('#details').append(details);
-				
-				
 			}
 		}
 	});

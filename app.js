@@ -153,13 +153,13 @@ function getProducts() {
           .on('error', err => console.log(err));
         console.log("JSON has been created.");
       });
-  }).then(() => {
     var c = new Client();
     c.on('ready', function() {
       c.put('900/items900.csv', 'item900-remote.csv', function(err) {
         if (err) throw err;
         c.end();
         console.log("CSV has been created.");
+        
       });
     });
     c.connect(cProps900);
@@ -181,7 +181,7 @@ function getProducts() {
 
 
 //Building the LJ Queries
-var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, vFeaturedItem, itemprice_1, itemprice_2, vEvents, vOnSale, orderynpdxam ";
+var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, vFeaturedItem, itemprice_1, itemprice_2, vEvents, vOnSale, orderynpdxam, quantityonhand, quantitycommitted, qtyonbackorder, qtyinuse ";
 var ljFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber ";
 var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5 and itemprice_2 <> '0') ";
 var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%') ORDER BY vSorting ASC";
@@ -281,7 +281,7 @@ function getProducts800() {
 
 
 
-//Building the new item CousinDIY Queries
+//Building the new item Cosmo Queries
 var newDiyColumns = "SELECT TOP 40 vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizetype, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
 var newDiyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
 var newDiyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
@@ -348,3 +348,11 @@ function getNewProducts() {
     console.log(err);
   });
 }
+
+
+
+
+// access token
+
+//    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
+
