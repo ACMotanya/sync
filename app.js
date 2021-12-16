@@ -106,7 +106,7 @@ app.get('/customerData/:customerName', function (req, res) {
 //Building the CousinDIY Queries
 var diyColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenMaterial, vGenItemType, vSizeType, vShape, vDimensions, vPcCounts, vKeywords, vSorting, itemprice_1, itemprice_2, quantityonhand ";
 var diyFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON dbo.CCA_ITEM_DESCRIPTIONS.vItemNumber = dbo.SWCCSSTOK.stocknumber AND dbo.CCA_ITEM_DESCRIPTIONS.vLocation = locationnumber ";
-var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 10) ";
+var diyWhere1  = "WHERE (vLocation = '900' and vShowOnSite = 'Y' and (dbo.SWCCSSTOK.quantityonhand - (dbo.SWCCSSTOK.quantitycommitted + dbo.SWCCSSTOK.qtyonbackorder + dbo.SWCCSSTOK.qtyinuse)) > 25) ";
 var diyWhere2  = "OR (vLocation = '900' and vShowOnSite = 'Y' and (vGenItemType LIKE '%bundle%' OR vLook LIKE '%bundle%' OR vLook LIKE '%Beadalon%' OR vItemNumber = '34719038'))";
 var missPic = `where vlocation = '900' and
 vitemnumber in (
@@ -183,8 +183,8 @@ function getProducts() {
 //Building the LJ Queries
 var ljColumns = "SELECT vItemNumber, vLocation, vDescription, vShortDesc, vLook, vGenColor, vGenItemType, vMetalColor, vSizeType, vSorting, vKeywords, vAggregation, vMaterialDesc, vFeatureDesc, vDetailDesc, vFeaturedItem, itemprice_1, itemprice_2, vEvents, vOnSale, orderynpdxam, quantityonhand, quantitycommitted, qtyonbackorder, qtyinuse ";
 var ljFrom    = "FROM dbo.CCA_ITEM_DESCRIPTIONS LEFT JOIN dbo.SWCCSSTOK ON vItemNumber = stocknumber AND vLocation = locationnumber ";
-var ljWhere1  = "WHERE (vLocation = '800' and vShowOnSite = 'Y' and (quantityonhand - (quantitycommitted + qtyonbackorder + qtyinuse)) > 5 and itemprice_2 <> '0') ";
-var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%') ORDER BY vSorting ASC";
+var ljWhere1  = "WHERE vLocation = '800' and vShowOnSite = 'Y' ORDER BY vSorting ASC";
+//var ljWhere2  = "OR (vLocation = '800' and vShowOnSite = 'Y' and vGenItemType LIKE '%program%' OR vGenItemType LIKE '%assortment%') ORDER BY vSorting ASC";
 var missPiJKKJBc = `where vlocation = '800' and
 vitemnumber in (
 )`;
@@ -193,13 +193,14 @@ vitemnumber in (
 function getProducts800() {
   sql.connect(dbconfig).then(pool => {
   return pool.request()
-    .query(ljColumns + ljFrom + ljWhere1 + ljWhere2);
+    .query(ljColumns + ljFrom + ljWhere1);
   }).then(result => {
       items = JSON.stringify(result.recordset);
       items = JSON.parse(items.replace(/"\s+|\s+"/g,'"'));
       Object.keys(items).forEach (function (k) {
 
         items[k].vEvents = " ";
+        items[k].qtyinstock = "";
 
         //Code for aggregation
         if (items[k].vSizeType !== null && items[k].vSizeType !== "") {
@@ -218,8 +219,8 @@ function getProducts800() {
           items[k].salePriceWhol = items[k].itemprice_1;
           items[k].salePriceRetail = items[k].itemprice_2;
 
-          items[k].itemprice_1 = (items[k].itemprice_1 + 15.00).toFixed(2);
-          items[k].itemprice_2 = (items[k].itemprice_2 + 15.00).toFixed(2);
+          items[k].itemprice_1 = (items[k].itemprice_1 + 15).toFixed(2);
+          items[k].itemprice_2 = (items[k].itemprice_2 + 15).toFixed(2);
         } else {
           items[k].salePriceWhol = " ";
           items[k].salePriceRetail = " ";
@@ -234,8 +235,16 @@ function getProducts800() {
           items[k].lookAttr = lookAttr[0];
         }
 
-        var funcAttr = items[k].vGenItemType.split(",");
-        items[k].funcAttr = funcAttr[0];
+        if (items[k].vGenItemType !== null) {
+          var funcAttr = items[k].vGenItemType.split(",");
+          items[k].funcAttr = funcAttr[0];
+        }
+
+        if ( items[k].orderynpdxam === 'M') {
+          items[k].qtyinstock = '15';
+        } else {
+          items[k].qtyinstock = (items[k].quantityonhand - (items[k].quantitycommitted + items[k].qtyonbackorder + items[k].qtyinuse));
+        }
         
       });
       fs.writeFile('800/items800.json', JSON.stringify(items), 'utf8', (error) => {
@@ -243,7 +252,7 @@ function getProducts800() {
           console.log(error);
         
         const Json2csvTransform = require('json2csv').Transform;
-        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vKeywords", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "vFeaturedItem", "itemprice_1", "itemprice_2", "vEvents", "vOnSale", "salePriceWhol", "salePriceRetail", "lookAttr", "funcAttr"];
+        const fields = ["vItemNumber", "vLocation", "vDescription", "vShortDesc", "vLook", "vGenColor", "vGenItemType", "vMetalColor", "vSizeType", "vSorting", "vKeywords", "vAggregation", "vMaterialDesc", "vFeatureDesc", "vDetailDesc", "vFeaturedItem", "itemprice_1", "itemprice_2", "vEvents", "vOnSale", "salePriceWhol", "salePriceRetail", "lookAttr", "funcAttr", "qtyinstock"];
         const opts = { fields };
         const transformOpts = { highWaterMark: 16384, encoding: 'utf-8' };
         const input = fs.createReadStream('800/items800.json', { encoding: 'utf8' });
